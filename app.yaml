@@ -1,0 +1,79 @@
+id: /subscriptions/1d9eece0-941b-4b3e-a416-1193b54f859c/resourceGroups/rg-azurenamingtool/providers/Microsoft.App/containerapps/azurenamingtool
+identity:
+  principalId: 6beef9f3-5868-4ffe-8ce6-1f1aebe18489
+  tenantId: dd598ee0-c987-4b31-9cee-6d584cac8f7d
+  type: SystemAssigned
+location: Canada Central
+name: azurenamingtool
+properties:
+  configuration:
+    activeRevisionsMode: Single
+    dapr: null
+    ingress:
+      allowInsecure: false
+      clientCertificateMode: null
+      corsPolicy: null
+      customDomains: null
+      exposedPort: 0
+      external: true
+      fqdn: azurenamingtool.gentleglacier-a2ef19ad.canadacentral.azurecontainerapps.io
+      ipSecurityRestrictions: null
+      stickySessions: null
+      targetPort: 80
+      traffic:
+      - latestRevision: true
+        weight: 100
+      transport: Auto
+    maxInactiveRevisions: null
+    registries:
+    - identity: system
+      passwordSecretRef: ''
+      server: infrakr.azurecr.io
+      username: ''
+    secrets: null
+    service: null
+  customDomainVerificationId: EE46C869D09382E134305AB4977D566F0B5CDA6AD76EBC2C57E51A05F26B0DE4
+  environmentId: /subscriptions/1d9eece0-941b-4b3e-a416-1193b54f859c/resourceGroups/rg-azurenamingtool/providers/Microsoft.App/managedEnvironments/managedEnvironment-rgazurenamingto-9dad
+  eventStreamEndpoint: https://canadacentral.azurecontainerapps.dev/subscriptions/1d9eece0-941b-4b3e-a416-1193b54f859c/resourceGroups/rg-azurenamingtool/containerApps/azurenamingtool/eventstream
+  latestReadyRevisionName: azurenamingtool--tzwoi49
+  latestRevisionFqdn: azurenamingtool--tzwoi49.gentleglacier-a2ef19ad.canadacentral.azurecontainerapps.io
+  latestRevisionName: azurenamingtool--tzwoi49
+  managedEnvironmentId: /subscriptions/1d9eece0-941b-4b3e-a416-1193b54f859c/resourceGroups/rg-azurenamingtool/providers/Microsoft.App/managedEnvironments/managedEnvironment-rgazurenamingto-9dad
+  outboundIpAddresses:
+  - 20.175.154.148
+  provisioningState: Succeeded
+  template:
+    containers:
+    - image: infrakr.azurecr.io/azurenamingtool:latest
+      name: azurenamingtool
+      volumeMounts:
+      - mountPath: /myempty
+        volumeName: myempty
+      probes: []
+      resources:
+        cpu: 0.25
+        ephemeralStorage: 1Gi
+        memory: 0.5Gi
+    volumes:
+    - name: myempty
+      storageType: EmptyDir
+    initContainers: null
+    revisionSuffix: ''
+    scale:
+      maxReplicas: 10
+      minReplicas: 0
+      rules: null
+    serviceBinds: null
+      
+  workloadProfileName: null
+resourceGroup: rg-azurenamingtool
+systemData:
+  createdAt: '2023-05-08T02:15:11.9055427'
+  createdBy: yves.germainadm@kruger.com
+  createdByType: User
+  lastModifiedAt: '2023-05-08T18:39:14.9149534'
+  lastModifiedBy: yves.germainadm@kruger.com
+  lastModifiedByType: User
+tags:
+  Department: IT_Infra
+type: Microsoft.App/containerApps
