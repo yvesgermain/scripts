@@ -47,7 +47,7 @@ foreach ( $sam in $sams) {
     $fileSystemAccessRuleArgumentList = $identity, $filesystemrights, $InheritanceFlags, $PropagationFlags, $type   
     $fileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList $fileSystemAccessRuleArgumentList
     $mod.SetAccessRule($fileSystemAccessRule)
-    $mod.SetAccessRuleProtection($false, $false)
+    $mod.SetAccessRuleProtection($True, $false)
     $mod.access | Format-Table
 }
 
