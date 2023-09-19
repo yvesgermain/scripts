@@ -1,5 +1,32 @@
 # https://social.technet.microsoft.com/Forums/Lync/en-US/df3bfd33-c070-4a9c-be98-c4da6e591a0a/forum-faq-using-powershell-to-assign-permissions-on-active-directory-objects?forum=winserverpowershell
 # You can use the script below to get and assign Full Control permission to a computer object on an OU:
+import-module ActiveDirectory
+
+$ObjectTypeGUID = @{}
+
+$GetADObjectParameter=@{
+    SearchBase=(Get-ADRootDSE).SchemaNamingContext
+    LDAPFilter='(SchemaIDGUID=*)'
+    Properties=@("Name", "SchemaIDGUID")
+}
+
+$SchGUID=Get-ADObject @GetADObjectParameter
+    Foreach ($SchemaItem in $SchGUID){
+    $ObjectTypeGUID.Add([GUID]$SchemaItem.SchemaIDGUID,$SchemaItem.Name)
+}
+
+$ADObjExtPar=@{
+    SearchBase="CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)"
+    LDAPFilter='(ObjectClass=ControlAccessRight)'
+    Properties=@("Name", "RightsGUID")
+}
+
+ 
+$SchExtGUID=Get-ADObject @ADObjExtPar
+    ForEach($SchExtItem in $SchExtGUID){
+    $ObjectTypeGUID.Add([GUID]$SchExtItem.RightsGUID,$SchExtItem.Name)
+}
+
 
 $acl = Get-Acl AD:\'ou=tu,ou=disabledUsers,DC=kruger,DC=com'
 

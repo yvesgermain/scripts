@@ -1,8 +1,9 @@
 Import-Module activedirectory 
-$servers = (Get-ADComputer -Filter { OperatingSystem -like "Windows server*" -and  OperatingSystem -notlike "Windows server 2003*" } -Properties OperatingSystem ).name
+$date = (Get-Date).addmonths(-3) 
+$servers = (Get-ADComputer -Filter { enabled -eq $true -and lastlogondate -gt $date -and OperatingSystem -like "Windows server*" -and  OperatingSystem -notlike "Windows server 2003*" } -Properties OperatingSystem, lastlogondate ).name
 foreach ( $server in $servers) {
     if (Test-WSMan $server -ErrorAction SilentlyContinue) {
-        if (!(test-path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server) }
+        if (!(Test-Path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server) }
         Invoke-Command -Session $(Get-Variable "PPS$server").Value -ScriptBlock {
             $server = (HOSTNAME.EXE).tolower()
             if (!( Test-Path C:\temp\NTFS )) { mkdir C:\temp\NTFS }
@@ -52,7 +53,7 @@ Set-Location "C:\Program Files\MongoDB\Tools\100\bin"
 $servers | ForEach-Object -Parallel { Get-ChildItem ("\\" + $_ + "\c$\temp\ntfs\") | ForEach-Object { $full = $_.fullname; &'C:\Program Files\MongoDB\Tools\100\bin\mongoimport.exe' mongodb://localhost:27017 /db:ACL /collection:Servers /file:$full /type:csv /headerline } }
 
 #  Scan AD
-if (!(test-path variable:ppshospdc01)) {
+if (!(Test-Path variable:ppshospdc01)) {
     New-Variable -Name "PPSHospdc01" -Value (New-PSSession -ComputerName hospdc01)
 }
 Invoke-Command -Session $(Get-Variable "PPShospdc01").Value -ScriptBlock {
@@ -83,7 +84,7 @@ Invoke-Command -Session $(Get-Variable "PPShospdc01").Value -ScriptBlock {
 
 $all = $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.securitydescriptor.Permissions.TrusteePermissions | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $Name } }, @{ name = "IdentityReference"; e = { $_.trustee.name."#text" } }, @{Name = "FileSystemRights"; e = { $_.standard.GPOGroupedAccessEnum } } }
 Add-MdbcData -InputObject $all
-$all =  $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.User.ExtensionData.extension.ShortcutSettings.Shortcut | ForEach-Object { $object = $_.name; $_.filters.filtergroup | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $name + "\" + $object } }, @{name = "IdentityReference" ; e = { $x = $_.name.split('\'); $x[0].toUpper() + '\' + $x[1] } } } }
+$all = $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.User.ExtensionData.extension.ShortcutSettings.Shortcut | ForEach-Object { $object = $_.name; $_.filters.filtergroup | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $name + "\" + $object } }, @{name = "IdentityReference" ; e = { $x = $_.name.split('\'); $x[0].toUpper() + '\' + $x[1] } } } }
 $all += $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.User.ExtensionData.extension.Printers.sharedPrinter | ForEach-Object { $object = $_.name; $_.filters.filtergroup | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $name + "\" + $object } }, @{name = "IdentityReference" ; e = { $x = $_.name.split('\'); $x[0].toUpper() + '\' + $x[1] } } } }
 $all += $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.User.ExtensionData.extension.registrySettings.Registry | ForEach-Object { $object = $_.name; $_.filters.filtergroup | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $name + "\" + $object } }, @{name = "IdentityReference" ; e = { $x = $_.name.split('\'); $x[0].toUpper() + '\' + $x[1] } } } }
 $all += $gpo.gpos.gpo | ForEach-Object { $name = $_.name; $_.computer.ExtensionData.extension.LocalUsersAndGroups.group.properties } | ForEach-Object { $object = $_.groupname; $_.members.member | Select-Object @{name = "Server" ; e = { "GPO" } }, @{name = "Folder" ; e = { $name + "\" + $object } }, @{name = "IdentityReference" ; e = { $x = $_.name.split('\'); $x[0].toUpper() + '\' + $x[1] } } }
@@ -104,37 +105,41 @@ $all = get-mailbox -ResultSize unlimited | ForEach-Object { $server = $_.ServerN
 Add-MdbcData -InputObject $all
 
 Connect-VIServer hosvvcsa.kruger.com
-$all = Get-VIPermission | ForEach-Object { $IdentityReference = $_.principal; $propagate = $_.propagate; Get-VIRole -Name $_.Role | Select-Object @{ name = "Server"; e = { "Vcenter\" + $_.server }}, @{ name = "Folder"; e = { "Role\" + $_.Name }},@{ name = "IdentityReference"; e = { $IdentityReference }}, @{ name = "FileSystemRights"; e = { $_.ExtensionData.Privilege }}, @{name = "InheritanceFlags" ; e = { $propagate }}}
+$all = Get-VIPermission | ForEach-Object { $IdentityReference = $_.principal; $propagate = $_.propagate; Get-VIRole -Name $_.Role | Select-Object @{ name = "Server"; e = { "Vcenter\" + $_.server } }, @{ name = "Folder"; e = { "Role\" + $_.Name } }, @{ name = "IdentityReference"; e = { $IdentityReference } }, @{ name = "FileSystemRights"; e = { $_.ExtensionData.Privilege } }, @{name = "InheritanceFlags" ; e = { $propagate } } }
 Add-MdbcData -InputObject $all
 	
 Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false
-connect-viserver misvvc.spl.local
-$all = Get-VIPermission | ForEach-Object { $IdentityReference = $_.principal; $propagate = $_.propagate; Get-VIRole -Name $_.Role | Select-Object @{ name = "Server"; e = { "Vcenter\" + $_.server }}, @{ name = "Folder"; e = { "Role\" + $_.Name }},@{ name = "IdentityReference"; e = { $IdentityReference }}, @{ name = "FileSystemRights"; e = { $_.ExtensionData.Privilege }}, @{name = "InheritanceFlags" ; e = { $propagate }}}
+Connect-VIServer misvvc.spl.local
+$all = Get-VIPermission | ForEach-Object { $IdentityReference = $_.principal; $propagate = $_.propagate; Get-VIRole -Name $_.Role | Select-Object @{ name = "Server"; e = { "Vcenter\" + $_.server } }, @{ name = "Folder"; e = { "Role\" + $_.Name } }, @{ name = "IdentityReference"; e = { $IdentityReference } }, @{ name = "FileSystemRights"; e = { $_.ExtensionData.Privilege } }, @{name = "InheritanceFlags" ; e = { $propagate } } }
 Add-MdbcData -InputObject $all
 
-$all = foreach ( $server in $servers[0..10]) { 
-    if (!(test-path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server) }
-    Invoke-Command -Session $(Get-Variable "PPS$server").Value -ScriptBlock {
-        import-module SmbShare;
-        get-smbshare | ForEach-Object {
-            $Server = hostname;
-            $Folder = ("Share\" + $_.name);
-            $_.securityDescriptor | ForEach-Object {
-                $sddl = ConvertFrom-SddlString $_ ;
-                $sddl | Select-Object @{name = "Server" ; e = { $server } },
-                @{name = "Folder" ; e = { $Folder } },
-                @{Name = "IdentityReference" ; e = { $_.DiscretionaryAcl.split(":")[0].trim() }}, 
-                @{name = "FileSystemRights" ; e = { $_.DiscretionaryAcl.split(":")[1].trim() }} 
+$all = $servers | ForEach-Object -Parallel {
+    $server = $_
+    if ( Test-Connection $server -Quiet -Count 1) {
+        if (!(Test-Path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server) }
+        Invoke-Command -Session $(Get-Variable "PPS$server").Value -ScriptBlock {
+            Import-Module SmbShare
+            Get-SmbShare | ForEach-Object {
+                $Server = hostname
+                $Folder = ("Share\" + $_.name)
+                $_.securityDescriptor | ForEach-Object {
+                    $sddl = ConvertFrom-SddlString $_ 
+                    $sddl | Select-Object @{name = "Server" ; e = { $server } },
+                    @{name = "Folder" ; e = { $Folder } },
+                    @{Name = "IdentityReference" ; e = { $_.DiscretionaryAcl.split(":")[0].trim() } }, 
+                    @{name = "FileSystemRights" ; e = { $_.DiscretionaryAcl.split(":")[1].trim() } } 
+                }
             }
         }
     }
 }
+Add-MdbcData -InputObject $all
 
-Get-MdbcData -distinct Server
+Get-MdbcData -Distinct Server
 Get-MdbcData -Filter @{"Server" = "GPO" ; "IdentityReference" = @{ '$regex' = '^SPL\\' } } -As PS -Project @{"_id" = 0 }
 Get-MdbcData -Filter @{"Server" = "GPO" ; "IdentityReference" = @{ '$not' = @{ '$regex' = '^KRUGERINC\\' } } } -As PS -Project @{"_id" = 0 }
 Get-MdbcData -Filter @{"Server" = "GPO" ; '$nor' = @(@{ "IdentityReference" = @{'$regex' = '^KRUGERINC\\' } }, @{"IdentityReference" = @{'$regex' = '^AUTORITE NT\\' } }) } -As PS -First 100 | Select-Object Server, Folder, IdentityReference
-Get-MdbcData -Filter @{"IdentityReference" = 'Everyone' ; "FileSystemRights" = "FullControl"; "AccessControlType" ="Deny"} -As PS -Project @{"_id" = 0 } | ft Server, Folder,AccessControlType, InheritanceFlags, PropagationFlags
+Get-MdbcData -Filter @{"IdentityReference" = 'Everyone' ; "FileSystemRights" = "FullControl"; "AccessControlType" = "Deny" } -As PS -Project @{"_id" = 0 } | ft Server, Folder, AccessControlType, InheritanceFlags, PropagationFlags
 
 function ConvertTo-NtAccount ($sid) { (New-Object system.security.principal.securityidentifier($sid)).translate([system.security.principal.ntaccount]) }
 $gpo = Get-GPOReport -All -ReportType xml
@@ -174,6 +179,7 @@ $ctype = [System.DirectoryServices.AccountManagement.ContextType]::Machine
 $idtype = [System.DirectoryServices.AccountManagement.IdentityType]::SamAccountName
 
 $servers = (Get-ADComputer -Filter { OperatingSystem -like "Windows server*" -and  OperatingSystem -notlike "Windows server 2003*" } -Properties OperatingSystem ).name
+"Remote Desktop Users"
 $servers | ForEach-Object -Parallel { 
     $server = $_
     if (Test-Connection -TargetName $server -Ping -Count 1 -Quiet) {
@@ -182,7 +188,7 @@ $servers | ForEach-Object -Parallel {
         $context = New-Object -TypeName System.DirectoryServices.AccountManagement.PrincipalContext -ArgumentList $ctype, $server
         $group = [System.DirectoryServices.AccountManagement.GroupPrincipal]::FindByIdentity($context, $idtype, 'Administrators')
         # $group.Members | Select-Object @{ Name= "Server" ;e = {$server}}, @{N = "Domain"; E = { $_.Context.Name + "\" + $_.samaccountname } }, name, samaccountname, UserPrincipalName, IsSecurityGroup
-        Try { $group.Members | Select-Object @{ Name = "Server" ; e = { $server } }, @{N = "IdentityReference"; E = { $_.Context.Name + "\" + $_.samaccountname } }, @{name = "FileSystemRights" ; e = { "Administrators" } } } catch [System.DirectoryServices.AccountManagement.PrincipalOperationException] { $server }
+        Try { $group.Members | Select-Object @{ Name = "Server" ; e = { $server } }, @{N = "IdentityReference"; E = { $_.Context.Name + "\" + $_.samaccountname } }, @{name = "FileSystemRights" ; e = { "Groupe\Administrators" } } } catch [System.DirectoryServices.AccountManagement.PrincipalOperationException] { $server }
     } 
-}| Format-Table
+}
 
