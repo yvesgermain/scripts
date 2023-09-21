@@ -29,34 +29,28 @@ function Get-MYacl {
     )
     $Group = Get-ADGroup -Filter { name -eq $group }
     $identity = [System.Security.Principal.SecurityIdentifier] $group.SID
-    $ACE = New-Object System.DirectoryServices.ActiveDirectoryAccessRule $identity, $adRights, $type, $inheritanceType
 
     $ObjectTypeGUID = @{}
-
     $GetADObjectParameter = @{
         SearchBase = (Get-ADRootDSE).SchemaNamingContext
         LDAPFilter = '(SchemaIDGUID=*)'
         Properties = @("Name", "SchemaIDGUID")
     }
-
     $SchGUID = Get-ADObject @GetADObjectParameter
     Foreach ($SchemaItem in $SchGUID) {
         $ObjectTypeGUID.Add($SchemaItem.Name, [GUID]$SchemaItem.SchemaIDGUID)
     }
-
     $ADObjExtPar = @{
         SearchBase = "CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)"
         LDAPFilter = '(ObjectClass=ControlAccessRight)'
         Properties = @("Name", "RightsGUID")
     }
-    
-     
     $SchExtGUID = Get-ADObject @ADObjExtPar
     ForEach ($SchExtItem in $SchExtGUID) {
         $ObjectTypeGUID.Add($SchExtItem.Name, [GUID]$SchExtItem.RightsGUID)
     }
 
-
-    $objectguid = $ObjectTypeGUID[$objectName].Guid
-
+    $objectguid = $ObjectTypeGUID[[guid]$objectName].Guid
+    $objectguid
+    $ACE = New-Object System.DirectoryServices.ActiveDirectoryAccessRule $identity, $adRights, $type, $inheritanceType
 }
