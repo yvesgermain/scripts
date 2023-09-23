@@ -80,7 +80,7 @@ if ($reboot) { Restart-Computer -ComputerName $server }
 # Adding the DNS records
 # Create Reverse Pointer zone if needed.
 
-$printers[0..4] | ForEach-Object { 
+$printers | ForEach-Object { 
     $ip = $_.PortName; 
     $name = $_.name.replace("kruger.com", "");  
     if (!(Resolve-DnsName -Server 10.1.22.221 -Name $name)) { 
@@ -201,7 +201,7 @@ $result.result
 
 # Create new printers groups
 
-$printers[0..4] | ForEach-Object {
+$printers | ForEach-Object {
     $printerName = $_.name;
     $PrintGroup = $_.name + "_Print"; 
     #Get GroupSID

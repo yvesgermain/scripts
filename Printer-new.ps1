@@ -28,7 +28,7 @@ $Drivers = @(@{"name" = "Xerox Global Print Driver PCL6" ; "DriverPath" = "C:\Dr
 $ADserver = get-adcomputer $Server
 $LinkGPOTargetpath = "OU=Servers,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 # $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $admin, $password
-# $session = New-PSSession -ComputerName $Server -Authentication Credssp -Credential $cred
+$session = New-PSSession -ComputerName $Server # -Authentication Credssp -Credential $cred
 
 switch ($loc) {
     "OU=Bedford,OU=Kruger Products,DC=kruger,DC=com" { $extension = "BD" }
@@ -95,7 +95,7 @@ if ($reboot) { Restart-Computer -ComputerName $server }
 
 $printers | ForEach-Object { 
     $ip = $_.PortName; 
-    $name = ($extension.Toupper() + "ps" + $_.name)
+    $name = ($extension.Toupper() + "PS" + $_.name)
     if (!(Resolve-DnsName -Server 10.1.22.221 -Name "$name.kruger.com" -ErrorAction SilentlyContinue)) { 
         Add-DnsServerResourceRecordA -ComputerName 10.1.22.221 -name $name -ZoneName kruger.com -IPv4Address $ip -verbose
     }
@@ -214,7 +214,7 @@ $result.result
 "Create new printers groups"
 
 $printers | ForEach-Object {
-    $printerName = ($extension.Toupper() + "ps" + $_.name)
+    $printerName = ($extension.Toupper() + "PS" + $_.name)
     $PrintGroup = ($extension.Toupper() + "p_" + $_.name + "_Print" )
     "Get GroupSID for $PrintGroup"
     $PrintSid = (Get-adgroup -filter { name -eq $PrintGroup }).sid.value
