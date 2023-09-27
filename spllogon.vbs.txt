@@ -2,7 +2,6 @@
 ' 
 ' Scott Paper Logon Script
 ' Version 1.4, Feb 9, 2006
-' Version 1.5, Sept 27, 2023
 ' Original Script by Paul Wood, EDS
 ' Carl Steele, EDS
 ' 
@@ -14,7 +13,6 @@
 '		1.2 [Carl Steele] Montreal S: removed, using G:
 '		1.3 [Carl Steele] Calgary G: \\kpsvwts02\calgrp changed to X:
 '		1.4 [Carl Steele] Lennoxville mappings updated, G: mapping added
-'     1.5 [Yves Germain] Cleanup of bad subnet 
 '
 ' ***********************************************************
 
@@ -57,27 +55,27 @@ Loop
 
 Select Case network
 
-'    Case "199.175.174" '"Kruger Term Serv"  ' scrap YG
+    Case "199.175.174" '"Kruger Term Serv"  ' scrap YG
 '   If the login script is run from the terminal server, exit script. 
 '   A script local to the Term Server is run for these users called TSMapping.vbs
-'        wscript.quit  ' scrap YG
+        wscript.quit  ' scrap YG
 
-'    Case "192.168.2" '"test site"   ' scrap YG
-'    Wscript.Echo "Mapping Test Drives..." ' scrap YG
-'    MapDrive "H:","\\192.168.2" & UserName & "$" ' scrap YG
-'    MapDrive "G:","\\win2003\groups"  ' scrap YG
-'    MapDrive "P:","\\win2003\public"  ' scrap YG
+    Case "192.168.2" '"test site"   ' scrap YG
+    Wscript.Echo "Mapping Test Drives..." ' scrap YG
+    MapDrive "H:","\\192.168.2" & UserName & "$" ' scrap YG
+    MapDrive "G:","\\win2003\groups"  ' scrap YG
+    MapDrive "P:","\\win2003\public"  ' scrap YG
     
-'    Case "199.175.173" '"Annacis Island"    ' scrap YG
-'    Wscript.Echo "Mapping Annacis Island Drives..."  ' scrap YG
-'    MapDrive "H:","\\splnwfp\" & UserName & "$"  ' scrap YG
-'    MapDrive "P:","\\splnwfp\public"  ' scrap YG
+    Case "199.175.173" '"Annacis Island"    ' scrap YG
+    Wscript.Echo "Mapping Annacis Island Drives..."  ' scrap YG
+    MapDrive "H:","\\splnwfp\" & UserName & "$"  ' scrap YG
+    MapDrive "P:","\\splnwfp\public"  ' scrap YG
     
-'   Case "192.6.1" '"Calgary"    ' scrap YG
-'   Wscript.Echo "Mapping Calgary Drives..."  ' scrap YG
-'   MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
-'   MapDrive "X:","\\kpsvwts02\calgrp"  ' scrap YG
-'   MapDrive "P:","\\kpsvwts02\calpub"  ' scrap YG
+    Case "192.6.1" '"Calgary"    ' scrap YG
+    Wscript.Echo "Mapping Calgary Drives..."  ' scrap YG
+    MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
+    MapDrive "X:","\\kpsvwts02\calgrp"  ' scrap YG
+    MapDrive "P:","\\kpsvwts02\calpub"  ' scrap YG
         
 '    MapDrive "H:","\\calgary\" & UserName & "$"
 '    MapDrive "P:","\\calgary\public"
@@ -88,10 +86,10 @@ Select Case network
     MapDrive "G:","\\splctfp\groups"
     MapDrive "P:","\\splctfp\public"
     
-'    If objFSO.FolderExists("C:\Program Files\msaver8") Then     ' scrap YG files don't exist
-'       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
-'    End If      ' scrap YG files don't exist
+    If objFSO.FolderExists("C:\Program Files\msaver8") Then     ' scrap YG files don't exist
+       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
+       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
+    End If      ' scrap YG files don't exist
    
     Case "10.50.1" '"Crabtree"
     Wscript.Echo "Mapping Crabtree Drives..."
@@ -99,10 +97,10 @@ Select Case network
     MapDrive "G:","\\splctfp\groups"
     MapDrive "P:","\\splctfp\public"
         
-'    If objFSO.FolderExists("C:\Program Files\msaver8") Then      ' scrap YG files don't exist
-'       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
-'    End If        ' scrap YG files don't exist
+    If objFSO.FolderExists("C:\Program Files\msaver8") Then      ' scrap YG files don't exist
+       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
+       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
+    End If        ' scrap YG files don't exist
     
     Case "10.50.0" '"Crabtree"
     Wscript.Echo "Mapping Crabtree Drives..."
@@ -110,15 +108,15 @@ Select Case network
     MapDrive "G:","\\splctfp\groups"
     MapDrive "P:","\\splctfp\public"
             
-'    If objFSO.FolderExists("C:\Program Files\msaver8") Then ' scrap YG files don't exist
-'       Wscript.Echo "Executing MainSaver Update...."  ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true  ' scrap YG files don't exist
-'    End If  ' scrap YG files don't exist
+    If objFSO.FolderExists("C:\Program Files\msaver8") Then ' scrap YG files don't exist
+       Wscript.Echo "Executing MainSaver Update...."  ' scrap YG files don't exist
+       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true  ' scrap YG files don't exist
+    End If  ' scrap YG files don't exist
        
-'    Case "199.175.171" '"Dartmouth"    ' scrap YG
-'    Wscript.Echo "Mapping Dartmouth Drives..."  ' scrap YG
-'    MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
-'    MapDrive "P:","\\kpsvwts02\public"  ' scrap YG
+    Case "199.175.171" '"Dartmouth"    ' scrap YG
+    Wscript.Echo "Mapping Dartmouth Drives..."  ' scrap YG
+    MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
+    MapDrive "P:","\\kpsvwts02\public"  ' scrap YG
 
 
     Case "199.175.175" '"Joliette"
@@ -171,17 +169,17 @@ Select Case network
     Wscript.Echo "Mapping Memphis Drives..."
     MapDrive "P:","\\memfps\public"
 
-'    Case "198.96.7" '"Mississauga"    ' scrap YG
-'    Wscript.Echo "Mapping Mississauga Drives..."    ' scrap YG
-'    MapDrive "H:","\\splmifp\" & UserName & "$"    ' scrap YG
-'    MapDrive "G:","\\splmifp\groups"    ' scrap YG
-'    MapDrive "P:","\\splmifp\public"    ' scrap YG
+    Case "198.96.7" '"Mississauga"    ' scrap YG
+    Wscript.Echo "Mapping Mississauga Drives..."    ' scrap YG
+    MapDrive "H:","\\splmifp\" & UserName & "$"    ' scrap YG
+    MapDrive "G:","\\splmifp\groups"    ' scrap YG
+    MapDrive "P:","\\splmifp\public"    ' scrap YG
 
-'    Case "199.175.172" '"Montreal"    ' scrap YG
-'    Wscript.Echo "Mapping Montreal Drives..."    ' scrap YG
-'    MapDrive "H:","\\kpsvwts02\" & UserName & "$"    ' scrap YG
-'    MapDrive "G:","\\kpsvwts02\mongrp"    ' scrap YG
-'    MapDrive "P:","\\kpsvwts02\monpub"    ' scrap YG
+    Case "199.175.172" '"Montreal"    ' scrap YG
+    Wscript.Echo "Mapping Montreal Drives..."    ' scrap YG
+    MapDrive "H:","\\kpsvwts02\" & UserName & "$"    ' scrap YG
+    MapDrive "G:","\\kpsvwts02\mongrp"    ' scrap YG
+    MapDrive "P:","\\kpsvwts02\monpub"    ' scrap YG
     
 '    MapDrive "H:","\\montreal\" & UserName & "$"
 '    MapDrive "P:","\\montreal\public"
@@ -193,73 +191,73 @@ Select Case network
     MapDrive "G:","\\splnwfp\groups"
     MapDrive "P:","\\splnwfp\public"
     
-'        wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
-'        if isMember("NWFP_Fjord") then    ' scrap YG
-'           wscript.echo "Mapping Fjord Drive..."    ' scrap YG
-'           MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
-'        end if    ' scrap YG
+        wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
+        if isMember("NWFP_Fjord") then    ' scrap YG
+           wscript.echo "Mapping Fjord Drive..."    ' scrap YG
+           MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
+        end if    ' scrap YG
         
-'        if isMember("NWFP_Fjord_Read") then      ' scrap YG Group doesn't exist
-'           wscript.echo "Mapping Fjord Drive..."    ' scrap YG
-'           MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
-'        end if
+        if isMember("NWFP_Fjord_Read") then      ' scrap YG Group doesn't exist
+           wscript.echo "Mapping Fjord Drive..."    ' scrap YG
+           MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
+        end if
         
         if isMember("NWFP_TDPayroll") then
            wscript.echo "Mapping TDPayroll Drive..."
            MapDrive "T:","\\splnwfp\TDPayroll"
         end if
         
-'        if isMember("NWFP_RS500") then     ' scrap YG Group exists but drive doesn't
-'           wscript.echo "Mapping RS500 Drive..."    ' scrap YG
-'           MapDrive "K:","\\splnwfp\RS500"    ' scrap YG
-'        end if    ' scrap YG
+        if isMember("NWFP_RS500") then     ' scrap YG Group exists but drive doesn't
+           wscript.echo "Mapping RS500 Drive..."    ' scrap YG
+           MapDrive "K:","\\splnwfp\RS500"    ' scrap YG
+        end if    ' scrap YG
 
-'       if isMember("WMD-SAP_DOC_GLB") then       ' scrap YG Group exists but drive doesn't
-'          wscript.echo "Mapping WMD Drive..."     ' scrap YG Group exists but drive doesn't
-'          MapDrive "W:","\\splctiso\WMD SAP PM Documents"     ' scrap YG Group exists but drive doesn't
-'        end if     ' scrap YG Group exists but drive doesn't
+       if isMember("WMD-SAP_DOC_GLB") then       ' scrap YG Group exists but drive doesn't
+          wscript.echo "Mapping WMD Drive..."     ' scrap YG Group exists but drive doesn't
+          MapDrive "W:","\\splctiso\WMD SAP PM Documents"     ' scrap YG Group exists but drive doesn't
+        end if     ' scrap YG Group exists but drive doesn't
 
-'	if isMember("WMD_ConformIT_Procedures") then      ' scrap YG Group exists but drive doesn't
-'          wscript.echo "Mapping WMD Drive..."    ' scrap YG
-'          MapDrive "V:","\\splctiso\WMD ConformIT Procedure"    ' scrap YG
-'        end if    ' scrap YG
+	if isMember("WMD_ConformIT_Procedures") then      ' scrap YG Group exists but drive doesn't
+          wscript.echo "Mapping WMD Drive..."    ' scrap YG
+          MapDrive "V:","\\splctiso\WMD ConformIT Procedure"    ' scrap YG
+        end if    ' scrap YG
     
-'    Case "192.64.208" '"New Westminster"     ' scrap YG
-'    Wscript.Echo "Mapping New Westminster Drives..."    ' scrap YG
-'    MapDrive "H:","\\splnwfp\" & UserName & "$"    ' scrap YG
-'    MapDrive "G:","\\splnwfp\groups"    ' scrap YG
-'    MapDrive "P:","\\splnwfp\public"    ' scrap YG
+    Case "192.64.208" '"New Westminster"     ' scrap YG
+    Wscript.Echo "Mapping New Westminster Drives..."    ' scrap YG
+    MapDrive "H:","\\splnwfp\" & UserName & "$"    ' scrap YG
+    MapDrive "G:","\\splnwfp\groups"    ' scrap YG
+    MapDrive "P:","\\splnwfp\public"    ' scrap YG
     
-'       wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
-'       if isMember("NWFP_Fjord") then    ' scrap YG
-'          wscript.echo "Mapping Fjord Drive..."    ' scrap YG
-'          MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
-'       end if    ' scrap YG
+       wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
+       if isMember("NWFP_Fjord") then    ' scrap YG
+          wscript.echo "Mapping Fjord Drive..."    ' scrap YG
+          MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
+       end if    ' scrap YG
             
-'       if isMember("NWFP_Fjord_Read") then NWFP_Fjord      ' scrap YG Group doesn't exist
-'          wscript.echo "Mapping Fjord Drive..."    ' scrap YG
-'          MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
-'       end if    ' scrap YG
+       if isMember("NWFP_Fjord_Read") then NWFP_Fjord      ' scrap YG Group doesn't exist
+          wscript.echo "Mapping Fjord Drive..."    ' scrap YG
+          MapDrive "G:","\\splnwfp\fjord"    ' scrap YG
+       end if    ' scrap YG
             
        if isMember("NWFP_TDPayroll") then
           wscript.echo "Mapping TDPayroll Drive..."
           MapDrive "T:","\\splnwfp\TDPayroll"
        end if
             
-'       if isMember("NWFP_RS500") then      ' scrap YG Group exists but drive doesn't
-'          wscript.echo "Mapping RS500 Drive..."    ' scrap YG
-'          MapDrive "K:","\\splnwfp\RS500"    ' scrap YG
-'        end if    ' scrap YG
+       if isMember("NWFP_RS500") then      ' scrap YG Group exists but drive doesn't
+          wscript.echo "Mapping RS500 Drive..."    ' scrap YG
+          MapDrive "K:","\\splnwfp\RS500"    ' scrap YG
+        end if    ' scrap YG
 
-'       if isMember("WMD-SAP_DOC_GLB") then      ' scrap YG Group exists but drive doesn't
-'          wscript.echo "Mapping WMD Drive..."    ' scrap YG
-'          MapDrive "W:","\\splctiso\WMD SAP PM Documents"    ' scrap YG
-'        end if    ' scrap YG
+       if isMember("WMD-SAP_DOC_GLB") then      ' scrap YG Group exists but drive doesn't
+          wscript.echo "Mapping WMD Drive..."    ' scrap YG
+          MapDrive "W:","\\splctiso\WMD SAP PM Documents"    ' scrap YG
+        end if    ' scrap YG
 
-'	if isMember("WMD_ConformIT_Procedures") then       ' scrap YG Group exists but drive doesn't
-'          wscript.echo "Mapping WMD Drive..."    ' scrap YG
-'          MapDrive "V:","\\splctiso\WMD ConformIT Procedure"    ' scrap YG
-'        end if    ' scrap YG
+	if isMember("WMD_ConformIT_Procedures") then       ' scrap YG Group exists but drive doesn't
+          wscript.echo "Mapping WMD Drive..."    ' scrap YG
+          MapDrive "V:","\\splctiso\WMD ConformIT Procedure"    ' scrap YG
+        end if    ' scrap YG
 
 
 
