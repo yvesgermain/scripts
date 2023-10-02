@@ -44,15 +44,15 @@ function Get-MYacl {
     $domain = Get-ADDomain
 
     #Create a hashtable to store the GUID value of each schema class and attribute
-    $guidmap = @{}
+    $guidmap = [ordered] @{}
     Get-ADObject -SearchBase ($rootdse.SchemaNamingContext) -LDAPFilter `
-        "(schemaidguid=*)" -Properties lDAPDisplayName, schemaIDGUID | `
+        "(schemaidguid=*)" -Properties lDAPDisplayName, schemaIDGUID | Sort-Object -Property lDAPDisplayName |  `
         ForEach-Object { $guidmap[$_.lDAPDisplayName] = [System.GUID]$_.schemaIDGUID }
 
     #Create a hashtable to store the GUID value of each extended right in the forest
-    $extendedrightsmap = @{}
+    $extendedrightsmap = [ordered] @{}
     Get-ADObject -SearchBase ($rootdse.ConfigurationNamingContext) -LDAPFilter `
-        "(&(objectclass=controlAccessRight)(rightsguid=*))" -Properties displayName, rightsGuid | `
+        "(&(objectclass=controlAccessRight)(rightsguid=*))" -Properties displayName, rightsGuid | Sort-Object -Property displayName | `
         ForEach-Object { $extendedrightsmap[$_.displayName] = [System.GUID]$_.rightsGuid }
 
     $objectguid = $ObjectTypeGUID[[guid]$objectName].Guid
