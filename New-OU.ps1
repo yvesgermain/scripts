@@ -112,7 +112,7 @@ $parameters | ForEach-Object {
 $ProductionTech = $extension + " Production Techs"
 $SID = (Get-ADGroup -Filter { name -eq  $ProductionTech }).sid
 
-$parameters = @(@{OUs="Computers"; Object= "Computer"})
+$parameters = @(@{OUs="Production,ou=Computers"; Object= "Computer"})
 
 $parameters | ForEach-Object {
     $acl = Get-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou)
@@ -155,13 +155,32 @@ Set-Acl -Path  "ad:ou=test,$ou" -AclObject $acl
 $SiteAdmins = $extension + " Site admins"
 $SID = (Get-ADGroup -Filter { name -eq  $SiteAdmins }).sid
 
-$parameters = @(@{OUs="Contacts"; Object= "Contact"},@{OUs="Users"; Object="User"}, @{OUs="Groups"; Object="Group"},@{OUs="Computers"; Object= "Computer"}, @{OUs="Computers"; object = "msFVE-RecoveryInformation"},@{OUs="Servers"; Object= "Computer"}, @{OUs="Servers"; object = "msFVE-RecoveryInformation"})
+$parameters = @(@{OUs="Contacts"; Object= "Contact"},@{OUs="Users"; Object="User"}, @{OUs="Groups"; Object="Group"},@{OUs="Computers"; Object= "Computer"}, @{OUs="Computers"; object = "msFVE-RecoveryInformation"},@{OUs="Servers"; Object= "Computer"}, @{OUs="Servers"; object = "msFVE-RecoveryInformation"},@{OUs="Production,ou=Computers"; Object= "Computer"})
 
 $parameters | ForEach-Object {
     $acl = Get-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou)
     $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap[$_.object]  ))
     Set-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou) -AclObject $acl
-}
+}                                                                                                                             
+
+# Add Full control on the Test OU on everything 
+$acl = Get-Acl -Path "ad:ou=test,$ou"
+$acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow" ))
+Set-Acl -Path  "ad:ou=test,$ou" -AclObject $acl
+
+
+# Add BU admins control on the Computers OUs.
+
+$SiteAdmins = "KPLP BU Admins"
+$SID = (Get-ADGroup -Filter { name -eq  $SiteAdmins }).sid
+
+$parameters = @(@{OUs="Contacts"; Object= "Contact"},@{OUs="Users"; Object="User"}, @{OUs="Groups"; Object="Group"},@{OUs="Computers"; Object= "Computer"}, @{OUs="Computers"; object = "msFVE-RecoveryInformation"},@{OUs="Servers"; Object= "Computer"}, @{OUs="Servers"; object = "msFVE-RecoveryInformation"},@{OUs="Production,ou=Computers"; Object= "Computer"})
+
+$parameters | ForEach-Object {
+    $acl = Get-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou)
+    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap[$_.object]  ))
+    Set-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou) -AclObject $acl
+}                                                                                                                             
 
 # Add Full control on the Test OU on everything 
 $acl = Get-Acl -Path "ad:ou=test,$ou"
