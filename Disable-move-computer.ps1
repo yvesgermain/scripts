@@ -1,4 +1,8 @@
 $date = (Get-date).AddMonths(-3)
+# Clean out the DisabbledComputers OU first
+$LongEnoughDate = (get-date).adddays(-29)
+get-adcomputer -searchBase "OU=Disabledcomputers,DC=kruger,DC=com" -filter {whenChanged -lt $LongEnoughDate} -Properties lastlogondate, operatingsystem, whenChanged -SearchScope Subtree | Remove-ADObject -recursive -Verbose -Confirm:$false
+
 Get-ADComputer -Filter { 
     operatingsystem -like "*windows*" -and operatingsystem -notlike "*server*" -and lastlogondate -lt $date 
 } -Properties operatingsystem, lastlogondate | Where-Object { 
@@ -48,5 +52,5 @@ Get-ADComputer -Filter {
         default { $extension = "Unknown" }
     }
     Disable-ADAccount -Identity $computer -Verbose -WhatIf
-    Move-ADObject -Identity $computer -TargetPath ("ou=" + $extension + ",OU=DisabledComputers,DC=kruger,DC=com") -Verbose -WhatIf 
+    Move-ADObject -Identity $computer -TargetPath ("ou=" + $extension + ",OU=DisabledComputers,DC=kruger,DC=com") -Verbose
 }
