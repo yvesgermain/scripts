@@ -77,6 +77,22 @@ $name = "$extension Site admins"; if (!( Get-ADGroup -Filter { name -eq $name })
     New-ADGroup -Path "OU=Site Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteAdmins" -DisplayName $name
 }
 
+# Prend comme OU exemple Sherbrooke.  Crée les groupes SCCM
+
+Get-ADGroup -SearchBase "OU=Groups,OU=Sherbrooke,OU=Kruger Products,DC=kruger,DC=com" -Filter { name -like "SH servers:*" -or name -like "SH workstation*" } | ForEach-Object {
+    $name = $_.name -replace ("^SH", $Extension) 
+    New-ADGroup -Path "OU=Groups,$ou" -Name $name -DisplayName $name -SamAccountName $name.replace(":", "").replace(" ", "") -Description $_.description -GroupScope Global -GroupCategory Security -Verbose 
+}
+
+Write-Host "Ajoute les groupes créé dans les groupes SCCMM"
+
+Get-ADGroup -SearchBase "OU=Groups,OU=Sherbrooke,OU=Kruger Products,DC=kruger,DC=com" -Filter { name -like "SH WORKSTATION*" -OR name -like "SH server*" } -Properties memberof | ForEach-Object { 
+    $name = $_.name -replace ("^SH", $extension) 
+    $_.memberof | ForEach-Object {
+        Add-ADGroupMember -Identity $_ -Members "cn=$name,OU=Groups,$ou" -Verbose 
+    }
+}
+
 # Set-Location ad:
 # $ACE = New-Object System.DirectoryServices.ActiveDirectoryAccessRule $identity, $adRights, $type, $inheritanceType
 
@@ -174,7 +190,7 @@ $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRul
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['lockoutTime']  , "Descendents", $guidmap["user"] ))
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['description']  , "Descendents", $guidmap["user"] ))
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['pwdLastSet']   , "Descendents", $guidmap["user"] ))
-$acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['accountExpires'],"Descendents", $guidmap["user"] ))
+$acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['accountExpires'], "Descendents", $guidmap["user"] ))
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['userAccountControl'] , "Descendents", $guidmap["user"] ))
 Set-Acl -Path "ad:ou=standard Users,OU=Users,$ou" -AclObject $acl
 

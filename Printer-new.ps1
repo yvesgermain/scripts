@@ -46,21 +46,21 @@ Param(
     [string] $Fichier = "C:\temp\GRSVPS01.csv",
     [string] $gpoBackupFolderFullPath = "C:\GPO-backup\"
 )
-# Install the modules to execute the script:
+Write-Host "Install the modules to execute the script:"
 
-if (!(get-module -name ActiveDirectory)) {
-Add-WindowsCapability -online -name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0"
+if (!(Get-Module -Name ActiveDirectory)) {
+    Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0" -Verbose
 }
-if (!(get-module -name DnsServer )){
-    Add-WindowsCapability -online -name "Rsat.Dns.Tools~~~~0.0.1.0"
+if (!(Get-Module -Name DnsServer )) {
+    Add-WindowsCapability -Online -Name "Rsat.Dns.Tools~~~~0.0.1.0" -Verbose
 }
-if (!(get-module -name GroupPolicy)){
-    Add-WindowsCapability -online -name "Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0"
+if (!(Get-Module -Name GroupPolicy)) {
+    Add-WindowsCapability -Online -Name "Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0" -Verbose
 }
 
-# Import the modules
+Write-Host "Import the modules"
 Import-Module ActiveDirectory, PrintManagement, ServerManager, GroupPolicy
-# Variable à modifier
+# Variable à modifier"
 
 $domainName = "Kruger.com"
 
@@ -69,7 +69,7 @@ if ($BusinessUnit -in "head Office", "Energy", "Corporate") {
     $loc = "OU=$BusinessUnit,DC=kruger,DC=com"
     $LinkGPOTargetpath = "OU=Servers,OU=$BusinessUnit,DC=kruger,DC=com"
 } `
-else {
+    else {
     $OU = "OU=Printers,OU=Groups,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
     $loc = "OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
     $LinkGPOTargetpath = "OU=Servers,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
@@ -89,7 +89,7 @@ switch ($loc) {
     "OU=Bromptonville,OU=Publication,DC=kruger,DC=com" { $extension = "BR" }
     "OU=Calgary,OU=Kruger Products,DC=kruger,DC=com" { $extension = "CA" }
     "OU=Corner Brook,OU=Publication,DC=kruger,DC=com" { $extension = "CB" }
-    "OU=corporate,DC=kruger,DC=com" {$extension = "KR" }
+    "OU=corporate,DC=kruger,DC=com" { $extension = "KR" }
     "OU=Crabtree,OU=Kruger Products,DC=kruger,DC=com" { $extension = "CT" }
     "OU=Elizabethtown,OU=Packaging,DC=kruger,DC=com" { $extension = "ET" }
     "OU=Energy,DC=kruger,DC=com" { $extension = "NR" }
@@ -107,7 +107,7 @@ switch ($loc) {
     "OU=Pedigree,OU=Packaging,DC=kruger,DC=com" { $extension = "PD" }
     "OU=Paperboard,OU=Packaging,DC=kruger,DC=com" { $extension = "PB" } 
     "OU=Queensborough,OU=Kruger Products,DC=kruger,DC=com" { $extension = "QB" }
-    "OU=Richelieu,OU=Kruger Products,DC=kruger,DC=com" { $extension = "GR" } # Gatineau/Richelieu
+    "OU=Richelieu,OU=Kruger Products,DC=kruger,DC=com" { $extension = "GR" }  # Gatineau/Richelieu
     "OU=Shared Services,OU=Recycling,DC=kruger,DC=com" { $extension = "RC" } 
     "OU=Scarborough,OU=Kruger Products,DC=kruger,DC=com" { $extension = "SC" }
     "OU=Shared Services,OU=Kruger products,DC=kruger,DC=com" { $extension = "KP" }
@@ -136,16 +136,16 @@ if (!($LinkGPOTargetpath -in $report.gpo.linksto.sompath)) {
     Set-GPLink -Name "KR server Print Spooler Disable" -Target $LinkGPOTargetpath -LinkEnabled Yes
 }
 
-"ADD server to proper OU"
+Write-Host "ADD server to proper OU"
 if ($ADserver.DistinguishedName -notlike "CN=$server,$LinkGPOTargetpath") { Move-ADObject -Identity $ADserver -TargetPath $LinkGPOTargetpath; $reboot = $true }
 
 if (!($Adserver.name -in (Get-ADGroupMember -Identity "KR Print Spooler Disable Exceptions" ).name)) { Add-ADGroupMember -Identity "KR Print Spooler Disable Exceptions" -Members $ADserver.DistinguishedName ; $reboot = $true }
 
-# reboot if not in group
+Write-Host "reboot if not in group"
 if ($reboot) { Restart-Computer -ComputerName $server }
 
-# Adding the DNS records
-# Create Reverse Pointer zone if needed.
+Write-Host "Adding the DNS records"
+Write-Host "Create Reverse Pointer zone if needed."
 
 $printers | ForEach-Object { 
     $ip = $_.PortName 
@@ -155,7 +155,7 @@ $printers | ForEach-Object {
     }
 }
 
-# ADD Servers-Print Service Roles and Features.
+Write-Host "ADD Servers-Print Service Roles and Features."
 
 $reboot = Invoke-Command -Session $Session -ScriptBlock {
     $code = Add-WindowsFeature RSAT-Print-Services
@@ -170,15 +170,15 @@ $reboot = Invoke-Command -Session $Session -ScriptBlock {
 if ($reboot -eq "True") { Restart-Computer -ComputerName $server }
 
 
-# Create AD Groups for printing permissions and GPP
+Write-Host "Create AD Groups for printing permissions and GPP"
 $result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch {}
 if ($null -eq $result) {
     New-ADOrganizationalUnit -Name "Printers" -Path "OU=Groups,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com" 
 }
 
-# Adding the groups for Printers and Default Printers
+Write-Host "Adding the groups for Printers and Default Printers"
 
-#Create AD group 
+Write-Host "Create AD group "
 $printers | ForEach-Object {
     foreach ($suffix  in @("", "_DF", "_Print", "_Manage")) {
         $groupName = $extension + "p_" + $_.name + $suffix 
@@ -218,7 +218,7 @@ foreach ($Driver in $Drivers) {
     }
 }
 
-# Create the printers
+ Write-host "Create the printers"
 $printers | ForEach-Object {
     $printerName = ($extension.Toupper() + "ps" + $_.name)
     $driverName = $_.DriverName
@@ -254,9 +254,9 @@ $printers | ForEach-Object {
 }
 
 
-"Restore GPO GPP Print Server Template from Backup.  Give it time to replicate to all domain controllers."
+Write-host "Restore GPO GPP Print Server Template from Backup.  Give it time to replicate to all domain controllers."
 
-"Using COM objects. Restore-GPO won't restore a GPO if the GPO is deleted!"
+Write-host "Using COM objects. Restore-GPO won't restore a GPO if the GPO is deleted!"
 
 $gpm = New-Object -ComObject GPMgmt.GPM
 $gpmConstants = $gpm.GetConstants()
@@ -283,7 +283,7 @@ $printers | ForEach-Object {
     "Get GroupSID for $ManageGroup"
     $ManageSid = (Get-ADGroup -Filter { name -eq $ManageGroup }).sid.value
     "Set Permissions"
-    Set-Printer -ComputerName $server -Name $printerName -PermissionSDDL "G:SYD:(A;;SWRC;;;AC)(A;;SWRC;;;$PrintSid)(A;;SWRC;;;$ManageSid)(A;CIIO;RC;;;$ManageSid)(A;OIIO;RPWPSDRCWDWO;;;$ManageSid)(A;;LCSWSDRCWDWO;;;BA)" -Verbose
+    Set-Printer -ComputerName $server -Name $printerName -PermissionSDDL "G:SYD:(A; ; SWRC; ; ; ac)(A; ; SWRC; ; ; $PrintSid)(A; ; SWRC; ; ; $ManageSid)(A; CIIO; RC; ; ; $ManageSid)(A; OIIO; RPWPSDRCWDWO; ; ; $ManageSid)(A; ; LCSWSDRCWDWO; ; ; BA)" -Verbose
 }
 
 "New GPO $Extension GPP Print Server $server"
@@ -294,7 +294,7 @@ if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $G
 $newgpo = Copy-GPO -SourceName "GPP Print Server Template" -TargetName $gponame
 $newgpo.description = "GPO to map printers to users for $server"
 $guid = $newgpo.id.guid
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 
 "Creating $newgpo from GPP Print Server Template"
@@ -316,7 +316,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.Name = $name
         $NewEntry.Status = $name
         $NewEntry.Changed = "$CurrentDateTime"
-        $NewEntry.uid = "{" + "$newguid" + "}"
+        $NewEntry.uid = "{ " + "$newguid" + " }"
         $NewEntry.properties.path = "\\$server\$Name"
         $NewEntry.properties.location = $location
         $NewEntry.bypassErrors = 1
@@ -334,12 +334,12 @@ $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
 
-New-GPLink -Name $gponame -Target "ou=Standard Users,ou=Users,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com" -LinkEnabled Yes
+New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
 
 <# Clean environment
 
