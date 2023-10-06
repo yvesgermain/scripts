@@ -180,8 +180,8 @@ $parameters | ForEach-Object {
 # Modify members in Groups OU
 foreach ($GroupOu in "Distribution", "GPO" , "Printers") {
     $acl = Get-Acl -Path ("ad:ou=$GroupOU,ou=groups," + $ou)
-    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "WriteProperty", "Allow", $guidmap["Member"] , "Descendents", $guidmap["Group"]  ))
-    Set-Acl -Path  "ad:ou=test,$ou" -AclObject $acl
+    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap["Member"] , "Descendents", $guidmap["Group"]  ))
+    Set-Acl -Path ("ad:ou=$GroupOU,ou=groups," + $ou) -AclObject $acl
 }
 
 #Reset Passwords, unlock, enable/disable accounts for Standard Users. Modify the Description and Expiry Date.
@@ -266,3 +266,12 @@ $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRul
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['gplink'] , "Descendents" ))
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "ReadProperty, WriteProperty", "Allow", $guidmap['gPOptions'] , "Descendents" ))
 Set-Acl -Path "ad:$ou" -AclObject $acl
+
+#######################################################
+
+# donner au groupe AD_computer_Full full control sur tous les OUs Computers et Full Volume Encryption
+$SID = (Get-ADgroup AD_computer_Full).sid
+get-adorganizationalUnit -filter {name -like "*computers"} | ForEach-Object { 
+    $acl = Get-acl "AD:$_.distinguishedname"; $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["computer"]  )); 
+    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["msFVE-RecoveryInformation"]  )); 
+Set-Acl -Path $_.distinguishedname -AclObject $acl }

@@ -48,13 +48,13 @@ Param(
 )
 Write-Host "Install the modules to execute the script:"
 
-if (!(Get-Module -Name ActiveDirectory)) {
+if (!(Get-Module -Name ActiveDirectory -ListAvailable)) {
     Add-WindowsCapability -Online -Name "Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0" -Verbose
 }
-if (!(Get-Module -Name DnsServer )) {
+if (!(Get-Module -Name DnsServer -ListAvailable)) {
     Add-WindowsCapability -Online -Name "Rsat.Dns.Tools~~~~0.0.1.0" -Verbose
 }
-if (!(Get-Module -Name GroupPolicy)) {
+if (!(Get-Module -Name GroupPolicy -ListAvailable)) {
     Add-WindowsCapability -Online -Name "Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0" -Verbose
 }
 
@@ -180,13 +180,14 @@ Write-Host "Adding the groups for Printers and Default Printers"
 
 Write-Host "Create AD group "
 $printers | ForEach-Object {
+    $Desc = $_.description;
     foreach ($suffix  in @("", "_DF", "_Print", "_Manage")) {
         $groupName = $extension + "p_" + $_.name + $suffix 
         switch ($suffix) {
-            "" { $Description = "GPO Map printer for $groupname " + $_.description; }
-            "_DF" { $Description = "GPO Map as a default printer for $groupname" ; }
-            "_Print" { $Description = "Permissions to print for $groupname"; }
-            "_Manage" { $Description = "Permissions to manage printer Queue document for $groupname"; }
+            "" { $Description = "GPO Map printer for $groupname  $Desc"; }
+            "_DF" { $Description = "GPO Map as a default printer for $groupname $desc"; }
+            "_Print" { $Description = "Permissions to print for $groupname $desc"; }
+            "_Manage" { $Description = "Permissions to manage printer Queue document for $groupname $desc"; }
         }
         if (!(Get-ADGroup -SearchBase $ou -Filter { name -eq $groupName }) ) {
             Try { New-ADGroup -Name $groupname -GroupScope Global -GroupCategory Security -Description $Description -Path $ou }  catch {
@@ -200,7 +201,6 @@ $printers | ForEach-Object {
     }
     "Add $($extension + 'p_' + $_.name) in the group $($extension + 'p_' + $_.name + '_Print')"
     Add-ADGroupMember -Members $($extension + 'p_' + $_.name), $($extension + 'p_' + $_.name + '_DF') -Identity $($extension + 'p_' + $_.name + '_Print')
-
 }
 
 foreach ($Driver in $Drivers) {
@@ -271,7 +271,7 @@ $gpmRestoreGPO = $gpmBackupDir.GetBackup($id)
 $result = $gpmdomain.RestoreGPO($gpmRestoreGPO , 0)
 $result.result
 
-"Create new printers groups"
+"Create new printers groups and give permissions"
 
 $printers | ForEach-Object {
     $printerName = ($extension.Toupper() + "PS" + $_.name)
@@ -283,7 +283,7 @@ $printers | ForEach-Object {
     "Get GroupSID for $ManageGroup"
     $ManageSid = (Get-ADGroup -Filter { name -eq $ManageGroup }).sid.value
     "Set Permissions"
-    Set-Printer -ComputerName $server -Name $printerName -PermissionSDDL "G:SYD:(A; ; SWRC; ; ; ac)(A; ; SWRC; ; ; $PrintSid)(A; ; SWRC; ; ; $ManageSid)(A; CIIO; RC; ; ; $ManageSid)(A; OIIO; RPWPSDRCWDWO; ; ; $ManageSid)(A; ; LCSWSDRCWDWO; ; ; BA)" -Verbose
+    Set-Printer -ComputerName $server -Name $printerName -PermissionSDDL "G:SYD:(A;;SWRC;;;ac)(A;;SWRC;;;$PrintSid)(A;;SWRC;;;$ManageSid)(A;CIIO;RC;;;$ManageSid)(A;OIIO;RPWPSDRCWDWO;;;$ManageSid)(A;;LCSWSDRCWDWO;;;BA)" -Verbose
 }
 
 "New GPO $Extension GPP Print Server $server"
@@ -294,7 +294,7 @@ if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $G
 $newgpo = Copy-GPO -SourceName "GPP Print Server Template" -TargetName $gponame
 $newgpo.description = "GPO to map printers to users for $server"
 $guid = $newgpo.id.guid
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 
 "Creating $newgpo from GPP Print Server Template"
@@ -334,7 +334,7 @@ $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
