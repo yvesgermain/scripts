@@ -2,7 +2,7 @@ function Get-AdAcl {
     param( $OuPath, [switch] $Recurse )
     Import-Module ActiveDirectory
     #Bring up an Active Directory command prompt so we can use this later on in the script
-    # Set-Location ad:
+    Set-Location ad:
     #Get a reference to the RootDSE of the current domain
     $rootdse = Get-ADRootDSE
     #Create a hashtable to store the GUID value of each schema class and attribute

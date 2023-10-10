@@ -6,15 +6,15 @@ $ok = $scrap| ForEach-Object {
         switch ( $_.site) {
             "BD" { $Extension = "Bedford"  ; $BusinessUnit = "Kruger Products"; $resp = "samuel.ponsot@kruger.com" }
             "BT" { $Extension = "BentonVille"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
-            "BA" { $Extension = "Brampton"  ; $BusinessUnit = "Kruger Products" ; $resp = "luis.cerda@kruger.com" }
+            # "BA" { $Extension = "Brampton"  ; $BusinessUnit = "Kruger Products" ; $resp = "luis.cerda@kruger.com" }
             "BR" { $Extension = "Bromptonville"  ; $BusinessUnit = "Publication" ; $resp = "richard.perras@kruger.com" }
             "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
             "CA" { $Extension = "Calgary"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
             "CB" { $Extension = "Corner Brook"  ; $BusinessUnit = "Publication" ; $resp = "kent.pike@kruger.com" }
             "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
-            "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Kruger Products" ; $resp = "matthew.barnes@kruger.com" }
-            "HO" { $Extension = "Head Office"  ; $BusinessUnit = "" ; $resp = "Samuel.ponsot@kruger.com" }
-            "KR" { $Extension = "Head Office"  ; $BusinessUnit = "" ; $resp = "Samuel.ponsot@kruger.com" }
+            "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Packaging" ; $resp = "matthew.barnes@kruger.com" }
+            "HO" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
+            "KR" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
             "JO" { $Extension = "Joliette"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
             "KL" { $Extension = "Kamloops"  ; $BusinessUnit = "Publication" ; $resp = "andrej.kocak@kruger.com" }
             "KK" { $Extension = "Shared Services"  ; $BusinessUnit = "Packaging" ; $resp = "luis.cerda@kruger.com" }
@@ -48,7 +48,7 @@ $ok = $scrap| ForEach-Object {
         }
         $ou = $null
         if ($null -ne $Extension) {
-            if ( $Extension -eq "Head Office" ) { $insert = $Extension + ",DC=kruger,DC=com" } else { $insert = $Extension + ",OU=" + $BusinessUnit + ",DC=kruger,DC=com" }
+            if ( $BusinessUnit -eq "Head Office" ) { $insert = $Extension + ",DC=kruger,DC=com" } else { $insert = $Extension + ",OU=" + $BusinessUnit + ",DC=kruger,DC=com" }
             if ($_.operatingsystem -like "Windows Server*") { $ou = "OU=Servers,OU=" + $insert }
             if ( $_.name.substring(2, 1) -eq "D") { $ou = "OU=Desktop,OU=Computers,OU=" + $insert }
             if ( $_.name.substring(2, 1) -eq "L") { $ou = "OU=mobile,OU=computers,OU=" + $insert } 
