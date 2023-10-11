@@ -243,7 +243,7 @@ $printers | ForEach-Object {
         }
         try {
             "Add the printer"
-            Add-Printer -ComputerName $Server -Name $printerName -DriverName $driverName -PortName $printerPortName -Published -ShareName $printerName -Shared -Location $location -ErrorAction stop
+            Add-Printer -ComputerName $Server -Name $printerName -DriverName $driverName -PortName $printerPortName -Published -ShareName $printerName -Shared -Location $_.description -ErrorAction stop
         }
         catch {
             Write-Output $_.Exception.Message -ForegroundColor Red

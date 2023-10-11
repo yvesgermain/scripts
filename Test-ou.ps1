@@ -10,6 +10,7 @@ $sites | ForEach-Object { switch ($_) {
         "BR" { $Extension = "Bromptonville"  ; $BusinessUnit = "Publication" ; $resp = "richard.perras@kruger.com" }
         "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
         "CA" { $Extension = "Calgary"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
+        "EX" { $Extension = "External";  $BusinessUnit = "Kruger Products" ; $resp = ""}
         "CB" { $Extension = "Corner Brook"  ; $BusinessUnit = "Publication" ; $resp = "kent.pike@kruger.com" }
         "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Packaging" ; $resp = "matthew.barnes@kruger.com" }
@@ -52,16 +53,17 @@ $sites | ForEach-Object { switch ($_) {
         $OU = "OU=$Extension,OU=$BusinessUnit,DC=kruger,DC=com"
     } $baseOU | ForEach-Object {
         $NewOU = "$_,$ou"
-        try { Get-ADOrganizationalUnit -Identity "$NewOU" > $null } catch { "Missing OU $NewOU" }
+        $base = $_;
+        try { Get-ADOrganizationalUnit -Identity "$NewOU" > $null } catch { $base }
     }
-}
+} | Group-Object -NoElement | Format-Table -AutoSize
 
 foreach ( $group in $groups) {
     foreach ($x in $ext) {
         $name = "$x $group" 
-        Get-ADGroup -Filter { name -like $Name } | Select-Object name, distinguishedName
+        Get-ADGroup -Filter { name -like $Name } | Where-Object {$_.distinguishedName -notlike "*ou=$group*"} | Select-Object name, distinguishedName
     }
 }
 
-Get-ADGroup -Filter { name -like "* bu admins" } | select distinguishedname
+Get-ADGroup -Filter { name -like "* bu admins" } | Select-Object distinguishedname
 
