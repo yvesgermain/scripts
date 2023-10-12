@@ -92,6 +92,19 @@ Get-ADGroup -SearchBase "OU=Groups,OU=Sherbrooke,OU=Kruger Products,DC=kruger,DC
     }
 }
 
+# Create $extension Service Accounts Server and $extension Service Accounts Computer groups 
+$Name = "$extension Service Accounts Server"
+if (!( Get-ADGroup -Filter { name -like $name })) {
+    New-ADGroup -Path "OU=Service Accounts,OU=Users,$ou" -Name $name -DisplayName $name -SamAccountName $name -Description "GPO will add this group to local adminstrators group on servers" -GroupScope Global -GroupCategory Security -Verbose 
+}
+Add-ADGroupMember -Identity $name -Members "CN=HO SA SCCM Client Push srv,OU=Accounts,OU=SCCM_Admins,OU=SCCM_Management,DC=kruger,DC=com"
+
+$Name = "$extension Service Accounts Computer"
+if (!( Get-ADGroup -Filter { name -like $name })) {
+    New-ADGroup -Path "OU=Service Accounts,OU=Users,$ou" -Name $name -DisplayName $name -SamAccountName $name -Description "GPO will add this group to local adminstrators group on Computers" -GroupScope Global -GroupCategory Security -Verbose 
+}
+Add-ADGroupMember -Identity $name -Members "CN=hosacmmKLPush,OU=Accounts,OU=SCCM_Admins,OU=SCCM_Management,DC=kruger,DC=com", "CN=HO SA SCCM Client Push wks,OU=Accounts,OU=SCCM_Admins,OU=SCCM_Management,DC=kruger,DC=com"
+
 # Set-Location ad:
 # $ACE = New-Object System.DirectoryServices.ActiveDirectoryAccessRule $identity, $adRights, $type, $inheritanceType
 
@@ -269,8 +282,8 @@ Set-Acl -Path "ad:$ou" -AclObject $acl
 #######################################################
 
 # donner au groupe AD_computer_Full full control sur tous les OUs Computers et Full Volume Encryption
-$SID = (Get-ADgroup AD_computer_Full).sid
-get-adorganizationalUnit -filter {name -like "*computers"} | ForEach-Object { 
-    $acl = Get-acl "AD:$_.distinguishedname"; $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["computer"]  )); 
-    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["msFVE-RecoveryInformation"]  )); 
-Set-Acl -Path $_.distinguishedname -AclObject $acl }
+$SID = (Get-ADGroup AD_computer_Full).sid
+Get-ADOrganizationalUnit -Filter { name -like "*computers" } | ForEach-Object { 
+    $acl = Get-Acl "AD:$_.distinguishedname"; $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["computer"]  )) 
+    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["msFVE-RecoveryInformation"]  )) 
+    Set-Acl -Path $_.distinguishedname -AclObject $acl }
