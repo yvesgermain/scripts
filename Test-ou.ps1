@@ -1,16 +1,17 @@
-$baseOU = "OU=Desktops,OU=Computers", "OU=Mobile,OU=Computers", "OU=Production,OU=Computers", "OU=Distribution,OU=Groups", "OU=GPO,OU=Groups", "OU=Printers,OU=Groups", "OU=Management,OU=Servers", "OU=Terminal Servers,OU=Servers", "OU=TS Users,OU=Users", "OU=Account Admins,OU=Users", "OU=Privileged,OU=Users", "OU=Production Techs,OU=Users", "OU=Resources,OU=Users", "OU=Server Admins,OU=Users", "OU=Service Accounts,OU=Users", "OU=Site Admins,OU=Users", "OU=Site Techs,OU=Users", "OU=Standard Users,OU=Users", "OU=LockDown Users,OU=Standard Users,OU=Users"  
+$baseOU = "OU=Desktops,OU=Computers", "OU=Mobile,OU=Computers", "OU=Production,OU=Computers", "OU=Distribution,OU=Groups", "OU=GPO,OU=Groups", "OU=Printers,OU=Groups", "OU=Management,OU=Servers", "OU=Terminal Servers,OU=Servers", "OU=Account Admins,OU=Users", "OU=Privileged,OU=Users", "OU=Production Techs,OU=Users", "OU=Resources,OU=Users", "OU=Server Admins,OU=Users", "OU=Service Accounts,OU=Users", "OU=Site Admins,OU=Users", "OU=Site Techs,OU=Users", "OU=Standard Users,OU=Users", "OU=LockDown Users,OU=Standard Users,OU=Users"  
 $sites = "BD", "BT", "BA", "BR", "BF", "CA", "CB", "CT", "ET", "HO", "KR", "JO", "KL", "KK", "LS", "GL", "LV", "LX", "LF", "MP", "KT", "KL", "MI", "NW", "OH", "PD", "PB", "PM", "QB", "GR", "SC", "KP", "PP", "KK", "SH", "SG", "TT", "TR", "TU", "WA"
-$ext = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NR", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA"
+$ext   = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NR", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA"
 $groups = "Account admins", "Site admins", "Site Techs", "production techs", "Server admins"
 
-$sites | ForEach-Object { switch ($_) {
+foreach ( $site in $sites) {
+    switch ($site) {
         "BD" { $Extension = "Bedford"  ; $BusinessUnit = "Kruger Products"; $resp = "samuel.ponsot@kruger.com" }
         "BT" { $Extension = "BentonVille"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
         # "BA" { $Extension = "Brampton"  ; $BusinessUnit = "Kruger Products" ; $resp = "luis.cerda@kruger.com" }
         "BR" { $Extension = "Bromptonville"  ; $BusinessUnit = "Publication" ; $resp = "richard.perras@kruger.com" }
         "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
         "CA" { $Extension = "Calgary"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
-        "EX" { $Extension = "External";  $BusinessUnit = "Kruger Products" ; $resp = ""}
+        "EX" { $Extension = "External"; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "CB" { $Extension = "Corner Brook"  ; $BusinessUnit = "Publication" ; $resp = "kent.pike@kruger.com" }
         "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Packaging" ; $resp = "matthew.barnes@kruger.com" }
@@ -53,15 +54,15 @@ $sites | ForEach-Object { switch ($_) {
         $OU = "OU=$Extension,OU=$BusinessUnit,DC=kruger,DC=com"
     } $baseOU | ForEach-Object {
         $NewOU = "$_,$ou"
-        $base = $_;
+        $base = $_
         try { Get-ADOrganizationalUnit -Identity "$NewOU" > $null } catch { $base }
     }
-} | Group-Object -NoElement | Format-Table -AutoSize
+} 
 
 foreach ( $group in $groups) {
     foreach ($x in $ext) {
         $name = "$x $group" 
-        Get-ADGroup -Filter { name -like $Name } | Where-Object {$_.distinguishedName -notlike "*ou=$group*"} | Select-Object name, distinguishedName
+        Get-ADGroup -Filter { name -like $Name } | Where-Object { $_.distinguishedName -notlike "*ou=$group*" } | Select-Object name, distinguishedName
     }
 }
 
