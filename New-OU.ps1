@@ -75,8 +75,11 @@ $name = "$extension Server admins"; if (!( Get-ADGroup -Filter { name -eq $name 
 $name = "$extension Site admins"; if (!( Get-ADGroup -Filter { name -eq $name })) {
     New-ADGroup -Path "OU=Site Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteAdmins" -DisplayName $name
 }
+$name = "$extension PRV Accounts"; if (!( Get-ADGroup -Filter { name -eq $name })) {
+    New-ADGroup -Path "OU=GPO,OU=Groups,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName $name -DisplayName $name -Description "Computer OBJ only Exception GPO Removal Admin rights"
+}
 
-# Prend comme OU exemple Sherbrooke.  Crée les groupes SCCM
+# Prend comme exemple OU Sherbrooke.  Crée les groupes SCCM
 
 Get-ADGroup -SearchBase "OU=Groups,OU=Sherbrooke,OU=Kruger Products,DC=kruger,DC=com" -Filter { name -like "SH servers:*" -or name -like "SH workstation*" } | ForEach-Object {
     $name = $_.name -replace ("^SH", $Extension) 

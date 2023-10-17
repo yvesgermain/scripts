@@ -89,7 +89,9 @@ $newgpo = Copy-GPO -SourceName "KR Removal of Local Admins Rights" -TargetName $
 $newgpo.description = "GPO to add groups to the local administrators group"
 $guid = $newgpo.id.guid
 $GPP_Admin_XMLPath = "\\hospdc01\D`$\Windows\SYSVOL\sysvol\Kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml"
-[XML]$Admin = (Get-Content -Path $GPP_Admin_XMLPath)
+$Admin = New-Object -TypeName XML
+$Admin.load($GPP_Admin_XMLPath)
+# [XML]$Admin = (Get-Content -Path $GPP_Admin_XMLPath)
 
 
 "Creating " + $newgpo.displayname + " from KR Removal of Local Admins Rights"
@@ -97,7 +99,7 @@ foreach ( $ext in $extension) {
 
     $OU = Find-OU -site $ext
     foreach ( $Action in "Append", "OverRide") {
-        $NewEntry = $admin.Groups.Group[0].Clone()
+        $NewEntry = $Admin.Groups.Group[0].Clone()
 #         $Newentry.filters.FilterGroup[1].RemoveAll()
         $CurrentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         $newguid = [System.Guid]::NewGuid().toString()
@@ -138,6 +140,8 @@ foreach ( $ext in $extension) {
         $Admin.DocumentElement.AppendChild($NewEntry)
     }
 }
+$item = $Admin.Groups.Group | Where-Object {$_.Properties.description -notmatch "YG$"}
+$item |ForEach-Object { $Admin.DocumentElement.RemoveChild($_)}
 $Admin.Save($GPP_Admin_XMLPath)
 
 $Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
