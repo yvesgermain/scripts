@@ -1,3 +1,17 @@
+<#
+.SYNOPSIS
+This script will create the OU structure for a new site, add the security settings to these new OUs and create associated groups.
+.DESCRIPTION
+This script will create the OU structure for a new site, add the security settings to these new OUs and create associated groups.
+.PARAMETER location
+List of location example: "Bedford", "Bentonville", "Bromptonville", "Brassfield", etc.
+.PARAMETER BusinessUnit
+list of busines units: "Corporate", "Energy", "Head Office", "Kruger Products", "Packaging", "Publication", "Recycling"
+.PARAMETER OuDescription
+Description for this new OU
+.EXAMPLE
+C:\Scripts\new-OU.ps1 -location Richelieu -Extension GR -BusinessUnit 'Kruger Products' -OuDescription "OU pour Gatineau Richelieu"
+#>
 param(
     [Parameter(Mandatory = $true)]
     $location,
@@ -156,7 +170,7 @@ $parameters | ForEach-Object {
     Set-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou) -AclObject $acl
 }
 
-# Modify members in Groups OU
+# Modify security in Groups OU
 $acl = Get-Acl -Path ("ad:ou=groups," + $ou)
 $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "WriteProperty", "Allow", $guidmap["Member"] , "Descendents", $guidmap["Group"]  ))
 Set-Acl -Path ("ad:ou=groups," + $ou) -AclObject $acl

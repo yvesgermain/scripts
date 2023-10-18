@@ -144,14 +144,14 @@ $item = $Admin.Groups.Group | Where-Object {$_.Properties.description -notmatch 
 $item |ForEach-Object { $Admin.DocumentElement.RemoveChild($_)}
 $Admin.Save($GPP_Admin_XMLPath)
 
-$Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
-$Admin.Save($GPP_Admin_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\machine\Preferences\Groups\Groups.xml"
-[XML]$Admin = (Get-Content -Path $GPP_PRT_XMLPath)
-$Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
-$Admin.Save($GPP_Admin_XMLPath)
+<# $Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
+# $Admin.Save($GPP_Admin_XMLPath)
+# $GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\machine\Preferences\Groups\Groups.xml"
+ [XML]$Admin = (Get-Content -Path $GPP_PRT_XMLPath)
+ $Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
+ $Admin.Save($GPP_Admin_XMLPath)
 
-# New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
+ New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
 
 
 ######################################################
@@ -172,3 +172,4 @@ $xmlElt.Attributes.Append($xmlAtt)
 
 # Store to a file 
 $xmlDoc.Save("c:\Temp\Fic.xml")
+#>
