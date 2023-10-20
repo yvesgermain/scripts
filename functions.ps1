@@ -66,7 +66,7 @@ function Remove-Diacritics {
     param ([String]$src = [String]::Empty)
     $normalized = $src.Normalize( [Text.NormalizationForm]::FormD )
     $sb = New-Object Text.StringBuilder
-    $normalized.ToCharArray() | % {
+    $normalized.ToCharArray() | ForEach-Object {
         if ( [Globalization.CharUnicodeInfo]::GetUnicodeCategory($_) -ne [Globalization.UnicodeCategory]::NonSpacingMark) {
             [void]$sb.Append($_)
         }
@@ -74,3 +74,9 @@ function Remove-Diacritics {
     $sb.ToString()
 }
     
+Function show-admin {
+    param ($computername= "localhost", [Parameter(Mandatory = $true)] $group )
+    [ADSI]$group = "WinNT://$computerName/$group,group"
+    $Members = $group.Invoke("Members") |ForEach-Object {$_.GetType().InvokeMember(“Name”, ‘GetProperty’, $null, $_, $null)}
+    return $Members
+}

@@ -4,9 +4,9 @@ $groups = @(
     "Site Admins",
     "Site Techs")
 
-$domainName = "Kruger.com"
-$extension = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NR", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA"
-$gpoBackupFolderFullPath = "C:\GPO-backup\"
+# $domainName = "Kruger.com"
+$extension = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS","JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
+# $gpoBackupFolderFullPath = "C:\GPO-backup\"
 
 Function Find-OU {
     param($site)
@@ -22,6 +22,7 @@ Function Find-OU {
         "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Packaging" ; $resp = "matthew.barnes@kruger.com" }
         "HO" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
+        "HO SS" { $Extension = "Shared Services"  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "KR" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "JO" { $Extension = "Joliette"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "KL" { $Extension = "Kamloops"  ; $BusinessUnit = "Publication" ; $resp = "andrej.kocak@kruger.com" }
@@ -44,9 +45,15 @@ Function Find-OU {
         "GR" { $Extension = "Richelieu"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SC" { $Extension = "Scarborough"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
         "KP" { $Extension = "Shared Services" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
+        "KP External" { $Extension = "External" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
+        "KP Shared" { $Extension = "Shared Services" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "PP" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
+        "PP SS" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
         "KK" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
+        "KK SS" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
+        "RC SS" { $Extension = "Shared Services" ; $BusinessUnit = "Recycling"; $resp = "" }
         "SH" { $Extension = "Sherbrooke"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
+        "SB" { $Extension = "Sherbrooke-LDC"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SG" { $Extension = "Sungard"  ; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "TT" { $Extension = "Trenton"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
         "TR" { $Extension = "Trois-Rivieres"  ; $BusinessUnit = "Publication" ; $resp = "richard.beland@kruger.com" }
@@ -62,7 +69,7 @@ Function Find-OU {
     return $OU
 }
 
-
+<#
 Write-Output "Restore GPO GPP Print Server Template from Backup.  Give it time to replicate to all domain controllers."
 
 Write-Output "Using COM objects. Restore-GPO won't restore a GPO if the GPO is deleted!"
@@ -79,6 +86,7 @@ $ID = $($gpmBackup).ID
 $gpmRestoreGPO = $gpmBackupDir.GetBackup($id)
 $result = $gpmdomain.RestoreGPO($gpmRestoreGPO , 0)
 $result.result
+#>
 
 "New GPO removal of Local Admins Rights"
 
@@ -86,13 +94,12 @@ $GPOName = "Test - Removal of Local Admins Rights - YG"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = Copy-GPO -SourceName "KR Removal of Local Admins Rights" -TargetName $gponame
-$newgpo.description = "GPO to add groups to the local administrators group"
 $guid = $newgpo.id.guid
-$GPP_Admin_XMLPath = "\\hospdc01\D`$\Windows\SYSVOL\sysvol\Kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml"
+$newgpo.description = "GPO to add groups to the local administrators group"
+$GPP_Admin_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Groups.xml"
 $Admin = New-Object -TypeName XML
 $Admin.load($GPP_Admin_XMLPath)
 # [XML]$Admin = (Get-Content -Path $GPP_Admin_XMLPath)
-
 
 "Creating " + $newgpo.displayname + " from KR Removal of Local Admins Rights"
 foreach ( $ext in $extension) {
@@ -113,14 +120,14 @@ foreach ( $ext in $extension) {
         $NewEntry.filters.FilterGroup[1].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[1].sid = ( get-adgroup -filter {name -like $FilterName} ).sid.value
         if ( $Action -eq "Append") {
-            $NewEntry.properties.description = "$ext Local Admins Append YG"
+            $NewEntry.properties.description = "$ext Local Admins Append"
             $NewEntry.properties.deleteAllUsers = 0
             $NewEntry.properties.deleteAllGroups = 0
             $NewEntry.properties.removeAccounts = 0
             $NewEntry.filters.FilterGroup[0].not = 0
         }
         if ( $Action -eq "OverRide") {
-            $NewEntry.properties.description = "$ext Local Admins YG"
+            $NewEntry.properties.description = "$ext Local Admins"
             $NewEntry.properties.deleteAllUsers = 1
             $NewEntry.properties.deleteAllGroups = 1
             $NewEntry.properties.removeAccounts = 1
@@ -140,9 +147,11 @@ foreach ( $ext in $extension) {
         $Admin.DocumentElement.AppendChild($NewEntry)
     }
 }
-$item = $Admin.Groups.Group | Where-Object {$_.Properties.description -notmatch "YG$"}
+$item = $Admin.Groups.Group[0]
 $item |ForEach-Object { $Admin.DocumentElement.RemoveChild($_)}
-$Admin.Save($GPP_Admin_XMLPath)
+$item = $Admin.Groups.Group[1]
+$item |ForEach-Object { $Admin.DocumentElement.RemoveChild($_)}
+$Admin.Save("\\kruger.com\sysvOL\kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml")
 
 <# $Admin.DocumentElement.RemoveChild($Admin.DocumentElement.SharedPrinter[0])
 # $Admin.Save($GPP_Admin_XMLPath)

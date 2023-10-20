@@ -302,8 +302,9 @@ if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $G
 $newgpo = Copy-GPO -SourceName "GPP Print Server Template" -TargetName $gponame
 $newgpo.description = "GPO to map printers to users for $server"
 $guid = $newgpo.id.guid
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
-[XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath)
+[XML]$PRNT = (Get-Content -Path "\\kruger.com\sccm$\Sources\scripts_Infra\data\Printers.xml")
+
+# [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath)
 
 "Creating $newgpo from GPP Print Server Template"
 $NewEntry = @()
@@ -338,11 +339,12 @@ foreach ($suffix in @( "", "_DF")) {
     }
 }
 
+$GPP_PRT_XMLPath = "\\kruger.com\sysvol\kruger.com\Policies\{$guid}\user\Preferences\printers\printer.xml"
 $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\$domainName\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath)
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
