@@ -26,7 +26,8 @@ param(
 # Import the modules
 Import-Module ActiveDirectory
 # Define the Base OU
-$BaseOU = "OU=Test",
+$BaseOUs = "OU=Test",
+"OU=Users",
 "OU=Servers",
 "OU=Groups",
 "OU=Contacts",
@@ -60,37 +61,36 @@ if ($BusinessUnit -in "head Office", "Energy", "Corporate") {
     $OU = "OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 }
 
-if (!(Get-ADOrganizationalUnit -Identity $OU)) {
-    New-ADOrganizationalUnit -DisplayName $location -Name $location -Description $OuDescription
-}
+Try { Get-ADOrganizationalUnit -Identity $OU } catch { New-ADOrganizationalUnit -DisplayName $location -Name $location -Description $OuDescription -Path "OU=$BusinessUnit,DC=kruger,DC=com" }
 
-$BaseOU | ForEach-Object {
-    if (!(Get-ADOrganizationalUnit -Identity "$_,$OU")) {
-        $NewOu = $_.split(",")[0].split("=")[1]
-        $OUPath = "$_,$OU".split("," ).split("=")[1]
-        New-ADOrganizationalUnit -DisplayName $NewOu -Name $NewOu -Path $OUPath
+
+foreach ($BaseOU in $BaseOUs) {
+    Try { Get-ADOrganizationalUnit -Identity "$BaseOU,$OU" } catch {
+        $NewOu = $BaseOU.split(",")[0].split("=")[1]
+        $OUPath = "$BaseOU,$OU".substring("$BaseOU,$OU".indexof(",") + 1)
+        New-ADOrganizationalUnit -DisplayName $NewOu -Name $NewOu -Path $OUPath -Verbose
     }
 }
 
 # Create Groups
 
 $name = "$extension Production Techs"; if (!(Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=Production Techs,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionProductionTechs" -DisplayName $name
+    New-ADGroup -Path "OU=Production Techs,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionProductionTechs" -DisplayName $name -Verbose
 }
 $name = "$extension Site Techs"; if (!( Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=Site Techs,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteTechs" -DisplayName $name
+    New-ADGroup -Path "OU=Site Techs,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteTechs" -DisplayName $name -Verbose
 }
 $name = "$extension Account admins"; if (!( Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=Account Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -Description ("Members of this group can manage users in " + $ou.split(",")[0].split("=")[1]) -SamAccountName "$ExtensionAccountAdmins" -DisplayName $name
+    New-ADGroup -Path "OU=Account Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -Description ("Members of this group can manage users in " + $ou.split(",")[0].split("=")[1]) -SamAccountName "$ExtensionAccountAdmins" -DisplayName $name -Verbose
 }
 $name = "$extension Server admins"; if (!( Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=Server Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionAccountAdmins" -DisplayName $name
+    New-ADGroup -Path "OU=Server Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionAccountAdmins" -DisplayName $name -Verbose
 }
 $name = "$extension Site admins"; if (!( Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=Site Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteAdmins" -DisplayName $name
+    New-ADGroup -Path "OU=Site Admins,OU=Users,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName "$ExtensionSiteAdmins" -DisplayName $name -Verbose
 }
 $name = "$extension PRV Accounts"; if (!( Get-ADGroup -Filter { name -eq $name })) {
-    New-ADGroup -Path "OU=GPO,OU=Groups,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName $name -DisplayName $name -Description "Computer OBJ only Exception GPO Removal Admin rights"
+    New-ADGroup -Path "OU=GPO,OU=Groups,$ou" -Name $name -GroupCategory Security -GroupScope Universal -SamAccountName $name -DisplayName $name -Description "Computer OBJ only Exception GPO Removal Admin rights" -Verbose 
 }
 
 # Prend comme exemple OU Sherbrooke.  Crée les groupes SCCM
@@ -298,9 +298,9 @@ Set-Acl -Path "ad:$ou" -AclObject $acl
 
 #######################################################
 
-# donner au groupe AD_computer_Full full control sur tous les OUs Computers et Full Volume Encryption
+# donner au groupe AD_computer_Full full control sur tous l'OU Computers et Full Volume Encryption
 $SID = (Get-ADGroup AD_computer_Full).sid
-Get-ADOrganizationalUnit -Filter { name -like "*computers" } | ForEach-Object { 
-    $acl = Get-Acl "AD:$_.distinguishedname"; $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["computer"]  )) 
-    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["msFVE-RecoveryInformation"]  )) 
-    Set-Acl -Path $_.distinguishedname -AclObject $acl }
+$acl = Get-Acl "AD:ou=Computers,$ou" 
+$acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["computer"] ))
+$acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, "GenericAll", "Allow", "Descendents", $guidmap["msFVE-RecoveryInformation"] ))
+Set-Acl -Path "AD:ou=Computers,$ou" -AclObject $acl
