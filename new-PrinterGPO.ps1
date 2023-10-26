@@ -179,7 +179,7 @@ if ($reboot -eq "True") {
 
 
 Write-Output "Create AD Groups for printing permissions and GPP"
-$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch {write-error "$OU doesn't exist"}
+$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch { Write-Error "$OU doesn't exist" }
 if ($null -eq $result) {
     New-ADOrganizationalUnit -Name "Printers" -Path "OU=Groups,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 }
@@ -188,7 +188,7 @@ Write-Output "Adding the groups for Printers and Default Printers"
 
 Write-Output "Create AD group"
 $printers | ForEach-Object {
-    $Desc = $_.description;
+    $Desc = $_.description
     foreach ($suffix  in @("", "_DF", "_Print", "_Manage")) {
         $groupName = $extension + "p_" + $_.name + $suffix
         switch ($suffix) {
@@ -226,7 +226,7 @@ foreach ($Driver in $Drivers) {
     }
 }
 
- Write-Output "Create the printers"
+Write-Output "Create the printers"
 $printers | ForEach-Object {
     $printerName = ($extension.Toupper() + "ps" + $_.name)
     $driverName = $_.DriverName
