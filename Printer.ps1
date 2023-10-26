@@ -217,6 +217,8 @@ $printers | ForEach-Object {
 # New GPO
 
 $GPOName = "$Extension GPP Print Server $server"
+"If $GPOName exist, delete it"
+if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = copy-gpo -SourceName "GPP Print Server Template" -TargetName $gponame
 $guid = $newgpo.id.guid
 $GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"

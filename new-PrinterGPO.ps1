@@ -179,7 +179,7 @@ if ($reboot -eq "True") {
 
 
 Write-Output "Create AD Groups for printing permissions and GPP"
-$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch { Write-Error "$OU doesn't exist" }
+$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch {write-error "$OU doesn't exist"}
 if ($null -eq $result) {
     New-ADOrganizationalUnit -Name "Printers" -Path "OU=Groups,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 }
@@ -188,7 +188,7 @@ Write-Output "Adding the groups for Printers and Default Printers"
 
 Write-Output "Create AD group"
 $printers | ForEach-Object {
-    $Desc = $_.description
+    $Desc = $_.description;
     foreach ($suffix  in @("", "_DF", "_Print", "_Manage")) {
         $groupName = $extension + "p_" + $_.name + $suffix
         switch ($suffix) {
@@ -226,7 +226,7 @@ foreach ($Driver in $Drivers) {
     }
 }
 
-Write-Output "Create the printers"
+ Write-Output "Create the printers"
 $printers | ForEach-Object {
     $printerName = ($extension.Toupper() + "ps" + $_.name)
     $driverName = $_.DriverName
@@ -249,7 +249,7 @@ $printers | ForEach-Object {
             Write-Output $_.Exception.Message -ForegroundColor Red
             break
         }
-        Write-Output "Printer $printerName successfully installed" -ForegroundColor Green
+        Write-Output "Printer $printerName successfully installed"
     }
     else {
         Write-Warning "Printer $printerName already installed"
@@ -297,35 +297,29 @@ $printers | ForEach-Object {
 "New GPO $Extension GPP Print Server $server"
 
 $GPOName = "$Extension GPP Print Server $server"
+
+$GPOName = "$Extension GPP Print Server $server"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
-$newgpo = Copy-GPO -SourceName "GPP Print Server Template" -TargetName $gponame
-$newgpo.description = "GPO to map printers to users for $server"
+$newgpo = copy-gpo -SourceName "GPP Print Server Template" -TargetName $gponame
 $guid = $newgpo.id.guid
-[XML]$PRNT = (Get-Content -Path "\\kruger.com\sccm$\Sources\scripts_Infra\data\Printers.xml")
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+[XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 
-# [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath)
-
-"Creating $newgpo from GPP Print Server Template"
 $NewEntry = @()
 
 foreach ($suffix in @( "", "_DF")) {
     foreach ($list in $Printers) {
         $name = ( $extension + "ps" + $list.name )
-        if ($suffix -eq "_DF") {
-            $GroupName = ( $extension + "p_" + $list.name + "_DF") ; $default = "1"
-        } `
-            else {
-            $GroupName = ( $extension + "p_" + $list.name ); $default = "0"
-        }
-        "Adding $GroupName printer to $GPOName"
+        $default = "0"
+        if ($suffix -eq "_DF") { $GroupName = ($name + "_DF") ; $default = "1" }
         $CurrentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry = $PRNT.printers.SharedPrinter[0].clone()
         $NewEntry.Name = $name
         $NewEntry.Status = $name
         $NewEntry.Changed = "$CurrentDateTime"
-        $NewEntry.uid = "{ " + "$newguid" + " }"
+        $NewEntry.uid = "{" + "$newguid" + "}"
         $NewEntry.properties.path = "\\$server\$Name"
         $NewEntry.properties.location = $location
         $NewEntry.bypassErrors = 1
@@ -333,23 +327,22 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.properties.default = $default
         $NewEntry.filters.Filtergroup.Name = "KRUGERINC\$GroupName"
         $NewEntry.filters.Filtergroup.userContext = "1"
-        $sid = (Get-ADGroup -SearchBase $ou -Filter { name -eq $GroupName }).sid.value
+        $sid = (get-adgroup -SearchBase $ou -filter { name -eq $name }).sid.value
         $NewEntry.filters.Filtergroup.SID = $sid
-        $PRNT.DocumentElement.AppendChild($NewEntry)
-    }
+        $PRNT.DocumentElement.AppendChild($NewEntry) 
+    } 
 }
 
-$GPP_PRT_XMLPath = "\\kruger.com\sysvol\kruger.com\Policies\{$guid}\user\Preferences\printers\printer.xml"
 $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Printers.xml"
-[XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath)
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+[XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
 
-New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
+New-GPLink -Name $gponame -Target "ou=Standard Users,ou=Users,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com" -LinkEnabled Yes
 
 <# Clean environment
 
