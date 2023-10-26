@@ -1525,20 +1525,21 @@ rundll32 printui.dll PrintUIEntry
  [System.DirectoryServices.ActiveDirectory.Forest]::GetForest( $adCtx)
 
 ************************* GPO Drive Mappings  ****************************************************
-Get-GPOReport -all -ReportType Xml -Path "c:\temp\gporeport.xml"
+Get-GPOReport -all -ReportType Xml -Path ("c:\temp\gporeport-" + (get-date -f yyyy-MM-dd) + ".xml")
 [xml] $gpo= gc "C:\temp\gporeport.xml"
 [xml] $gpo = Get-GPOReport -all -ReportType xml;
 **********  faster method to load XML  ********************
+Get-GPOReport -all -ReportType Xml -Path ("c:\temp\gporeport-" + (get-date -f yyyy-MM-dd) + ".xml")
 $xml = New-Object -TypeName XML
 $xml.load("C:\temp\gporeport.xml")
 $gpo.report.gpo |foreach-object {$name = $_.name; $_.COMPUTER.ExtensionData.Extension.RestrictedGroups |select @{name = "Gpo name" ;e = {$name}},@{name = "Member";e = {$_.groupname.name."#Text"}}, @{name = "Memberof" ;e = {$_.memberof.name."#text"}}, @{name = "Groupsmembers" ;e = {$_.member.name."#text"}}}
 $gpo.report.GPO |foreach-object {$name = $_.name; $_.computer.ExtensionData.extension.LocalUsersAndGroups.group.properties | select @{ name = "Gpo Name" ;e = {$name}}, Groupname, Action, deleteAllUsers, deleteAllGroups, removeAccounts,@{ name = "Members" ;e = {$_.Members.member.Name}}} | ft -AutoSize
 $gpo.report.GPO |foreach-object {$name = $_.name; $orgUnit = $_.computer.ExtensionData.extension.LocalUsersAndGroups.group.filters.FilterOrgUnit; $_.computer.ExtensionData.extension.LocalUsersAndGroups.group.properties | select @{ name = "Gpo Name" ;e = {$name}}, Groupname, Action, deleteAllUsers, deleteAllGroups, removeAccounts,@{ name = "Members" ;e = {$_.Members.member.Name}}, @{ name ="OrgUnit"; e= {$OrgUnit }}} | ft -AutoSize
 $gpo.report.GPO |foreach-object {$name = $_.name; $_.User.ExtensionData.extension.DriveMapSettings |foreach-object { if ($_.drive){ write-host -ForegroundColor Green $name; $_.drive |foreach-object{ $_.name.padright(5)  + $_.properties.path.padright(70) + "`t" +  $_.properties.action + "`t" + $_.properties.ThisDrive + "`t" + $_.filters.filtergroup.bool + "`t" + $(if ($_.filters.filtergroup.not -eq 1){" not member "} else {"`t"}) + $_.filters.filtergroup.name}}}}
-$gpo.report.GPO |foreach-object {$name = $_.name ; $_.linksto | select-object @{ name = "GPO Name";e = { $name}}, SOMPath, Enabled, NoOverride}
-$gpo.report.GPO |foreach-object {$name = $_.name;  $_.user.ExtensionData.extension.Folder.location  | select @{ name = "GPO Name" ;e = {$name }}, DestinationPath , @{ name = "SecurityGroup"; e = {$_.SecurityGroup.name."#text" }}}
+$gpo.report.GPO |foreach-object {$name = $_.name; $_.linksto | select-object @{ name = "GPO Name";e = { $name}}, SOMPath, Enabled, NoOverride}
+$gpo.report.GPO |foreach-object {$name = $_.name; $_.user.ExtensionData.extension.Folder.location  | select @{ name = "GPO Name" ;e = {$name }}, DestinationPath , @{ name = "SecurityGroup"; e = {$_.SecurityGroup.name."#text" }}}
 $gpo.report.GPO |foreach-object { if ($_.computer.extensiondata.extension.type -like "*SoftwareInstallationSettings") {$name = $_.name ;$_.computer.extensiondata.extension.msiapplication |select @{name="Gpo name"; e= {$name}}, Name, Path}} | ft -AutoSize
-$gpo.report.gpo |foreach-object {$name = $_.name ; $_.user.extensiondata.extension.ProxySettings | %{ $http = $_.http; $NoProxyInternet=  $_.NoProxyIntranet; $usesameproxy = $_.usesameproxy ; $_.ProxyAddressException  | select  @{name = "GPO Name";e = {$name}},  @{name = "Proxy exception Domain"; e ={$_} } , @{name = "NoProxyInternet" ;e = {$NoProxyInternet}},  @{name = "Http Port"; e = {$http.port }}, @{name = "Proxy Address"; e = {$http.Address }}, @{name = "usesameproxy" ;e = {$usesameproxy}}}} |ft
+$gpo.report.gpo |foreach-object {$name = $_.name; $_.user.extensiondata.extension.ProxySettings | %{ $http = $_.http; $NoProxyInternet=  $_.NoProxyIntranet; $usesameproxy = $_.usesameproxy ; $_.ProxyAddressException  | select  @{name = "GPO Name";e = {$name}},  @{name = "Proxy exception Domain"; e ={$_} } , @{name = "NoProxyInternet" ;e = {$NoProxyInternet}},  @{name = "Http Port"; e = {$http.port }}, @{name = "Proxy Address"; e = {$http.Address }}, @{name = "usesameproxy" ;e = {$usesameproxy}}}} |ft
 $gpo.report.gpo |foreach-object {$name = $_.name; $_.user.extensiondata.extension.homepage | select @{name = "GPO Name"; e = {$name}}, value }
 $gpo.report.gpo |foreach-object {$name = $_.name; $_.computer.extensiondata.extension.UserRightsAssignment |foreach-object { $assignment = $_.name; $_.member.name |select @{name = "GPO Name" ; e = {$name}}, @{name = "assignment" ; e = {$assignment}}, @{name = "User" ; e = {$_."#text"}}}}
 $gpo.report.gpo |foreach-object {$name = $_.name; $_.computer.extensiondata.extension.policy |where {$_.Category -like "Windows Components/Windows Update"} | %{$_.edittext |select @{Name = "Gpo Name" ;e = {$name}}, name, state, value }}

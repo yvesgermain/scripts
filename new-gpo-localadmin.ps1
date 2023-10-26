@@ -90,6 +90,7 @@ foreach ( $ext in $extension) {
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry.Changed = "$CurrentDateTime"
         $NewEntry.uid = "{ " + "$newguid" + " }"
+        $NewEntry.SetAttribute("disabled", 1)
         $FilterName = $ext + " PRV Accounts" 
         $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
@@ -133,6 +134,7 @@ foreach ( $ext in $extension) {
     $newguid = [System.Guid]::NewGuid().toString()
     $NewEntry.Changed = "$CurrentDateTime"
     $NewEntry.uid = "{ " + "$newguid" + " }"
+    $NewEntry.SetAttribute("disabled", 1)
     # $FilterName = $ext + " PRV Accounts" 
     # $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
     # $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
