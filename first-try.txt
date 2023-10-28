@@ -2728,4 +2728,6 @@ $SchExtGUID=Get-ADObject @ADObjExtPar
 }
 
 $ObjectTypeGUID | Format-Table -AutoSize
-
+************************  Audit policy *********************
+auditpol /list /category /v
+auditpol /get /subcategory:'{0CCE9215-69AE-11D9-BED3-505054503030},{0CCE921B-69AE-11D9-BED3-505054503030}' /r

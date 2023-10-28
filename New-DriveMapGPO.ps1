@@ -27,7 +27,7 @@ $Admin = New-Object -TypeName XML
 $Admin.load($GPP_Admin_XMLPath)
 "Creating " + $newgpo.displayname + " GPO"
 
-foreach ( $Drive in ($Drives | where {$_.group -ne $null} )) {
+foreach ( $Drive in ($Drives | Where-Object {$_.group -ne $null} )) {
     $NewEntry = $Admin.Drives.Drive[0].Clone()
     # $clone = $NewEntry.Properties.Members.member[1].clone()
     # $NewEntry.Properties.Members.AppendChild($clone)
