@@ -74,9 +74,11 @@ function Remove-Diacritics {
     $sb.ToString()
 }
     
-Function show-admin {
+Function Show-Admin {
     param ($computername= "localhost", [Parameter(Mandatory = $true)] $group )
+    if ($group -like "S-1-*") {$group =(new-object system.security.principal.securityidentifier($group)).translate([system.security.principal.ntaccount]).value}
+    if ($group -like "*\*") {$group = $group.split("\")[1]}
     [ADSI]$group = "WinNT://$computerName/$group,group"
-    $Members = $group.Invoke("Members") |ForEach-Object {$_.GetType().InvokeMember(“Name”, ‘GetProperty’, $null, $_, $null)}
-    return $Members
+    $Members = $group.Invoke("Members") | Select-Object @{name = "Group";e=  {([adsi]$_ ).Name}},@{name = "ComputerName" ;e = {$computername}}
+    return $Members 
 }

@@ -34,104 +34,6 @@ Function convert-kix2Drive {
     }
 }
 
-$HO = Get-Content \\kruger.com\NETLOGON\ho\kixtart.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" -and ($_ -like "Case *" -or $_ -like "If INGROUP*" -or $_ -like "*AddDisk(*")
-} | ForEach-Object {
-    if ($_ -match "Case ") { if ($_ -eq "Case 1") { $case = "AnyOU" } else { $case = $_.split(",")[1].split('"')[1] } }
-    if ($_ -match "AddDisk") { $letter, $MapDrive , $path = $_.replace('"', "").replace(')', "").split(","); $letter = $letter.split("(")[1] }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($case -and $case -eq $oldcase -and $IsMember -eq $null) {
-        $_ | Select-Object @{name = "OU" ; e = { $case.trim() } },
-        @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldcase = $case; $oldIsMember = $isMember
-}
-Remove-Variable letter, path, Ismember, oldismember, oldcase
-$HO
-
-$CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
-    if ($_ -match "use ") { $letter, $path = $_.replace('"', "").split(":"); $letter = $letter.replace("use " , "").trim() }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($IsMember -eq $null -and $oldIsMember -ne $null) {
-        $_ | Select-Object  @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldIsMember = $isMember
-}
-Remove-Variable letter, path, Ismember, oldismember
-$CB
-
-$LS = Get-Content \\kruger.com\NETLOGON\kk\kkLogin_ls.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" -and ($_ -like "Case *" -or $_ -like "If INGROUP*" -or $_ -like "*AddDisk(*")
-} | ForEach-Object {
-    if ($_ -match "Case ") { if ($_ -eq "Case 1") { $case = "AnyOU" } else { $case = $_.split(",")[1].split('"')[1] } }
-    if ($_ -match "AddDisk") { $letter, $MapDrive , $path = $_.replace('"', "").replace(')', "").split(","); $letter = $letter.split("(")[1] }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($case -and $case -eq $oldcase -and $IsMember -eq $null) {
-        $_ | Select-Object @{name = "OU" ; e = { $case.trim() } },
-        @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { '\\' + $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldcase = $case; $oldIsMember = $isMember
-}
-Remove-Variable letter, path, Ismember, oldismember, oldcase
-$LS
-
-$PD = Get-Content \\kruger.com\NETLOGON\kk\kkLogin_pd.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" -and ($_ -like "Case *" -or $_ -like "If INGROUP*" -or $_ -like "*AddDisk(*")
-} | ForEach-Object {
-    if ($_ -match "Case ") { if ($_ -eq "Case 1") { $case = "AnyOU" } else { $case = $_.split(",")[1].split('"')[1] } }
-    if ($_ -match "AddDisk") { $letter, $MapDrive , $path = $_.replace('"', "").replace(')', "").split(","); $letter = $letter.split("(")[1] }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($case -and $case -eq $oldcase -and $IsMember -eq $null) {
-        $_ | Select-Object @{name = "OU" ; e = { $case.trim() } },
-        @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { '\\' + $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldcase = $case; $oldIsMember = $isMember
-} 
-Remove-Variable letter, path, Ismember, oldismember, oldcase
-$PD
-
-$ET = Get-Content \\kruger.com\NETLOGON\kk\kkLogin_et.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" -and ($_ -like "Case *" -or $_ -like "If INGROUP*" -or $_ -like "*AddDisk(*")
-} | ForEach-Object {
-    if ($_ -match "Case ") { if ($_ -eq "Case 1") { $case = "AnyOU" } else { $case = $_.split(",")[1].split('"')[1] } }
-    if ($_ -match "AddDisk") { $letter, $MapDrive , $path = $_.replace('"', "").replace(')', "").split(","); $letter = $letter.split("(")[1] }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($case -and $case -eq $oldcase -and $IsMember -eq $null) {
-        $_ | Select-Object @{name = "OU" ; e = { $case.trim() } },
-        @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { '\\' + $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldcase = $case; $oldIsMember = $isMember
-}
-Remove-Variable letter, path, Ismember, oldismember, oldcase
-$ET
-
-$TU = Get-Content \\kruger.com\NETLOGON\kk\kkLogin_TU.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" -and ($_ -like "Case *" -or $_ -like "If INGROUP*" -or $_ -like "*AddDisk(*")
-} | ForEach-Object {
-    if ($_ -match "Case ") { if ($_ -eq "Case 1") { $case = "AnyOU" } else { $case = $_.split(",")[1].split('"')[1] } }
-    if ($_ -match "AddDisk") { $letter, $MapDrive , $path = $_.replace('"', "").replace(')', "").split(","); $letter = $letter.split("(")[1] }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-    if ($case -and $case -eq $oldcase -and $IsMember -eq $null) {
-        $_ | Select-Object @{name = "OU" ; e = { $case.trim() } },
-        @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { '\\' + $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldcase = $case; $oldIsMember = $isMember
-}
-Remove-Variable letter, path, Ismember, oldismember, oldcase, case
-$TU
 
 $Functions = @() 
 Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
@@ -191,7 +93,7 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 @{name = "Folder" ;e = {$Folder.replace('"',"")}},
                 @{name = "User"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
-                @{name= "Option1";e ={$option1}},
+                @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
                 if ($letter -or $path) { Remove-Variable letter } 
                 If ($folder) { Remove-Variable folder }  
@@ -215,7 +117,7 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 @{name = "Folder" ;e = {$Folder.replace('"',"")}},
                 @{name = "User or Group"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
-                @{name= "Option1";e ={$option1}},
+                @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
                 if ($letter -or $path) { Remove-Variable letter } 
                 If ($folder) { Remove-Variable folder }  
@@ -238,7 +140,7 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 @{name = "Folder" ;e = {$Folder.replace('"',"")}},
                 @{name = "User or Group"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
-                @{name= "Option1";e ={$option1}},
+                @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
                 if ($letter -or $path) { Remove-Variable letter , path } 
                 If ($folder) { Remove-Variable folder }  
