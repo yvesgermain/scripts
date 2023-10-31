@@ -137,8 +137,8 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 if ($string -notlike "*\\*") {$option1, $option2  = $path.trim().split(" ", [StringSplitOptions]::RemoveEmptyEntries)}
                 $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","") }}, 
                 @{name = "Case User or Group";e = {$case}},
-                @{name = "Folder" ;e = {$Folder.replace('"',"")}},
-                @{name = "User or Group"; e = { $user.replace('/user:',"") }},
+                @{name = "Path" ;e = {$Folder.replace('"',"")}},
+                @{name = "User"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
                 @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
@@ -157,7 +157,17 @@ $tr | Format-Table -AutoSize
 
 $ho = convert-kix2Drive \\kruger.com\NETLOGON\ho\kixtart.kix
 
-$CB = convert-kix2Drive \\kruger.com\NETLOGON\cb\LoginCB.kix
+$CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
+    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
+    if ($_ -match "use ") { $letter, $path = $_.replace('"', "").split(":"); $letter = $letter.replace("use " , "").trim() }
+    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
+    if ($IsMember -eq $null -and $oldIsMember -ne $null) {
+        $_ | Select-Object  @{name = "Letter"; e = { $letter } },
+        @{ name = "Path" ; e = { $path.trim()  } },
+        @{ name = "Group"; e = { $OldIsMember } }
+    }
+    $oldIsMember = $isMember
+}
 
 $LS = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_ls.kix 
 
