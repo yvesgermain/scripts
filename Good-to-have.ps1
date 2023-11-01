@@ -12,7 +12,7 @@ $spllogon = Get-Content \\kruger.com\NETLOGON\spllogon.vbs | Where-Object {
         @{name = "Subnet" ; e = { $case.split('"')[1] } },
         @{Name = "Location"  ; e = { $case.replace('"', "").split("'")[1] } },
         @{Name = "Group"; e = { $OldIsMember } }
-    } 
+    }
     $oldcase = $case; $oldIsMember = $isMember
 }
 $spllogon | Format-Table -AutoSize
@@ -35,22 +35,22 @@ Function convert-kix2Drive {
 }
 
 
-$Functions = @() 
+$Functions = @()
 Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
     -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | Where-Object { $_ -like "Function *" } | ForEach-Object {
     $name = $_.split("(")[0].replace("Function", "").trim()
     if ($_ -like '*(*') {
         $properties = $_.split("(")[1].replace(')', "").replace('$', "").split(",").trim()
-        Remove-Variable var 
-        $var = [psCustomObject]@{ "function" = $name } 
-        $properties | ForEach-Object { 
+        Remove-Variable var
+        $var = [psCustomObject]@{ "function" = $name }
+        $properties | ForEach-Object {
             $var | Add-Member -MemberType NoteProperty $_ -Value "scrap"
         }
-    } 
+    }
     $functions += $var
 }
 
-$Functions | ForEach-Object { 
+$Functions | ForEach-Object {
     Remove-Variable -Name $_.function
     New-Variable -Name $_.function -PassThru $_
 }
@@ -88,15 +88,15 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 $folder = '\\' + $Server + '\' + $share.trim()
                 $letter = $letter.replace('"',"")
                 $option1= $option1.replace('"',"")
-                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","").trim() }}, 
+                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","").trim() }},
                 @{name = "Case User or Group";e = {$case}},
                 @{name = "Folder" ;e = {$Folder.replace('"',"")}},
                 @{name = "User"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
                 @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
-                if ($letter -or $path) { Remove-Variable letter } 
-                If ($folder) { Remove-Variable folder }  
+                if ($letter -or $path) { Remove-Variable letter }
+                If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
                 if ($user) { Remove-Variable user }
                 if ($option1) {Remove-Variable Option1}
@@ -112,15 +112,15 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 $folder = '\\' + $Server + '\' + $share + '\$user'
                 $letter = $letter.replace(":","").replace('"',"").trim()
                 $option1= $option1.replace('"',"")
-                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","") }}, 
+                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","") }},
                 @{name = "Case User or Group";e = {$case}},
                 @{name = "Folder" ;e = {$Folder.replace('"',"")}},
                 @{name = "User or Group"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
                 @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
-                if ($letter -or $path) { Remove-Variable letter } 
-                If ($folder) { Remove-Variable folder }  
+                if ($letter -or $path) { Remove-Variable letter }
+                If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
                 if ($user) { Remove-Variable user }
                 if ($option1) {Remove-Variable Option1}
@@ -132,18 +132,18 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
             }
             if ($_ -match "use ") {
                 $string = $_.trim();
-                $scrap, $letter, $path = $string.split(" "); $letter = ($letter -replace ("use " , "")).trim() 
+                $scrap, $letter, $path = $string.split(" "); $letter = ($letter -replace ("use " , "")).trim()
                 if ($string -like "*\\*") {$folder , $user, $pwd = $Path.split(" ", [StringSplitOptions]::RemoveEmptyEntries)}
                 if ($string -notlike "*\\*") {$option1, $option2  = $path.trim().split(" ", [StringSplitOptions]::RemoveEmptyEntries)}
-                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","") }}, 
+                $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":","") }},
                 @{name = "Case User or Group";e = {$case}},
                 @{name = "Path" ;e = {$Folder.replace('"',"")}},
                 @{name = "User"; e = { $user.replace('/user:',"") }},
                 @{name = "Password"; e = { $pwd.replace('/password:',"") }},
                 @{name= "Option1";e ={$option1.trim()}},
                 @{name ="Option2";e = {$option2}};
-                if ($letter -or $path) { Remove-Variable letter , path } 
-                If ($folder) { Remove-Variable folder }  
+                if ($letter -or $path) { Remove-Variable letter , path }
+                If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
                 if ($user) { Remove-Variable user }
                 if ($option1) {Remove-Variable Option1}
@@ -152,7 +152,7 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
             }
         }
     }
-} 
+}
 $tr | Format-Table -AutoSize
 
 $ho = convert-kix2Drive \\kruger.com\NETLOGON\ho\kixtart.kix
@@ -169,7 +169,7 @@ $CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
     $oldIsMember = $isMember
 }
 
-$LS = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_ls.kix 
+$LS = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_ls.kix
 
 $PD = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_pd.kix
 

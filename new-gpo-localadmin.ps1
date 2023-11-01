@@ -91,14 +91,14 @@ foreach ( $ext in $extension) {
         $NewEntry.Changed = "$CurrentDateTime"
         $NewEntry.uid = "{ " + "$newguid" + " }"
         $NewEntry.SetAttribute("disabled", 1)
-        $FilterName = $ext + " PRV Accounts" 
+        $FilterName = $ext + " PRV Accounts"
         $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
         $NewEntry.filters.FilterOrgUnit[0].name = "ou=desktop,ou=computers,$ou"
         $NewEntry.filters.FilterOrgUnit[1].name = "ou=Laptop,ou=computers,$ou"
         $NewEntry.filters.FilterGroup[1].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[1].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
-        
+
         if ( $Action -eq "Append") {
             $NewEntry.properties.description = "$ext Local Admins Append"
             $NewEntry.properties.deleteAllUsers = 0
@@ -135,7 +135,7 @@ foreach ( $ext in $extension) {
     $NewEntry.Changed = "$CurrentDateTime"
     $NewEntry.uid = "{ " + "$newguid" + " }"
     $NewEntry.SetAttribute("disabled", 1)
-    # $FilterName = $ext + " PRV Accounts" 
+    # $FilterName = $ext + " PRV Accounts"
     # $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
     # $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
     $NewEntry.filters.FilterOrgUnit[0].name = "ou=Production,ou=computers,$ou"

@@ -74,7 +74,7 @@ if ($BusinessUnit -in "head Office", "Energy", "Corporate") {
     $loc = "OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
     $LinkGPOTargetpath = "OU=Servers,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 }
-$printers = Import-Csv $fichier
+$printers = Import-Csv $fichier -Encoding utf7
 $Drivers = @(@{"name" = "Xerox Global Print Driver PCL6" ; "DriverPath" = "C:\Drivers\Xerox\UNIV_5.919.5.0_PCL6_x64\UNIV_5.919.5.0_PCL6_x64_Driver.inf\x3UNIVX.inf" },
     @{"name" = "HP Universal Printing PCL 5"; "DriverPath" = "C:\Drivers\HP\pcl5-x64-6.1.0.20062\hpcu180t.inf" },
     @{"name" = "HP DesignJet HPGL2"; "DriverPath" = "C:\Drivers\HP\HP designJet T2500\win-x64-hpgl2-drv\hpi11gex.inf" })
@@ -226,7 +226,7 @@ foreach ($Driver in $Drivers) {
     }
 }
 
- Write-Output "Create the printers"
+Write-Output "Create the printers"
 $printers | ForEach-Object {
     $printerName = ($extension.Toupper() + "ps" + $_.name)
     $driverName = $_.DriverName
@@ -254,7 +254,7 @@ $printers | ForEach-Object {
     else {
         Write-Warning "Printer $printerName already installed"
     }
-    if ( $null -ne $oldServer ) {
+    if ( $null -ne $OldName ) {
         Write-Output ("Copying the configuration from the $oldServer to " + $_.oldName + " to the new $printerName")
         $config = Get-PrintConfiguration -ComputerName $oldServer -PrinterName $_.oldName
         Set-PrintConfiguration -ComputerName $Server -PrinterName $printerName -PrintTicketXml $config.PrintTicketXml
@@ -311,8 +311,9 @@ $NewEntry = @()
 foreach ($suffix in @( "", "_DF")) {
     foreach ($list in $Printers) {
         $name = ( $extension + "ps" + $list.name )
+        $groupName = ( $extension + "p_" + $list.name )
         $default = "0"
-        if ($suffix -eq "_DF") { $GroupName = ($name + "_DF") ; $default = "1" }
+        if ($suffix -eq "_DF") { $GroupName = ($GroupName + "_DF") ; $default = "1" }
         $CurrentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry = $PRNT.printers.SharedPrinter[0].clone()
@@ -327,7 +328,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.properties.default = $default
         $NewEntry.filters.Filtergroup.Name = "KRUGERINC\$GroupName"
         $NewEntry.filters.Filtergroup.userContext = "1"
-        $sid = (get-adgroup -SearchBase $ou -filter { name -eq $name }).sid.value
+        $sid = (get-adgroup -SearchBase $ou -filter { name -eq $GroupName }).sid.value
         $NewEntry.filters.Filtergroup.SID = $sid
         $PRNT.DocumentElement.AppendChild($NewEntry) 
     } 

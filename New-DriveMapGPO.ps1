@@ -21,7 +21,7 @@ $GPOName = "Test - DriveMap - YG"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = Copy-GPO -SourceName "LX GPP Drive mapping" -TargetName $GPOName
 $guid = $newgpo.id.guid
-$newgpo.description = "GPO to add Drive Maps using groups" 
+$newgpo.description = "GPO to add Drive Maps using groups"
 $GPP_Admin_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Drives.xml"
 $Admin = New-Object -TypeName XML
 $Admin.load($GPP_Admin_XMLPath)
