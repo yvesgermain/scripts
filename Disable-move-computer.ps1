@@ -51,6 +51,6 @@ Get-ADComputer -Filter {
         "OU=Wayagamack,OU=Publication,DC=kruger,DC=com" { $extension = "WA" }
         default { $extension = "Unknown" }
     }
-    Disable-ADAccount -Identity $computer -Verbose -WhatIf
+    Disable-ADAccount -Identity $computer -Verbose
     Move-ADObject -Identity $computer -TargetPath ("ou=" + $extension + ",OU=DisabledComputers,DC=kruger,DC=com") -Verbose
 }
