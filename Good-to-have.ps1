@@ -202,6 +202,7 @@ Get-ADGroupMember "KR Print Spooler Disable Exceptions" | ForEach-Object {
     }
 }
 ######################## Logon of administrator's account ##########################
+$servers = get-adcomputer -Filter { enabled -eq $true -and operatingsystem -like "*server*"} -Properties operatingsystem
 $servers | ForEach-Object -Parallel {
     $date = (Get-Date).AddMonths(-1) 
     Get-WinEvent -ComputerName $_.name -FilterHashtable @{ LogName = 'security'; StartTime = $Date; Id = '4672', '4648'; data = "administrator" }
