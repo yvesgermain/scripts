@@ -169,6 +169,10 @@ $reboot = Invoke-Command -Session $Session -ScriptBlock {
     # if ($reboot -ne $true) { $reboot = $false }
     Set-Service -Name spooler -StartupType Automatic
     Start-Service spooler
+    # Enabled Printer logs  
+    $log = New-Object System.Diagnostics.Eventing.Reader.EventLogConfiguration "Microsoft-Windows-PrintService/Operational" 
+    $log.IsEnabled = $True
+    $log.SaveChanges()
     return $reboot
 }
 if ($reboot -eq "True") { 
