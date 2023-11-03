@@ -206,3 +206,26 @@ $servers | ForEach-Object -Parallel {
     $date = (Get-Date).AddMonths(-1) 
     Get-WinEvent -ComputerName $_.name -FilterHashtable @{ LogName = 'security'; StartTime = $Date; Id = '4672', '4648'; data = "administrator" }
 } | Tee-Object -Variable out
+
+Get-ADOrganizationalUnit -Filter { name -like "Disabled *" } | ForEach-Object {
+    $dist = $_.distinguishedname
+    $gpo.report.gpo | ForEach-Object {
+        $name = $_.name 
+        if ($_.linksto.sompath  ) {
+            $all = @()
+            $all = $_.linksto.sompath
+            $all | ForEach-Object { 
+                $x = $_.split("/") 
+                [array]::Reverse($x) 
+                if ($x -ne "kruger.com") {
+                    $prefix = "OU="
+                } `
+                    else {
+                    $prefix = $null
+                } 
+                $dn = $prefix + [string]::join( ",", $x).replace(",", ",OU=").replace(",OU=kruger.com" , ",DC=Kruger,DC=COM").replace("kruger.com" , "DC=Kruger,DC=COM")  
+                if ($dn -in $dist) { $name}
+            }
+        }
+    }
+}
