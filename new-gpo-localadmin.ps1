@@ -176,4 +176,8 @@ $item | ForEach-Object { $Admin.DocumentElement.RemoveChild($item) }
 $Admin.Save("\\kruger.com\sysvol\kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml")
 
 Add-SDMWMIFilterLink -DisplayName $newgpo.displayname -FilterName "Windows 7 and Windows 10 and 11 Clients"
-invoke-command -ComputerName hospdc01 -ScriptBlock {(get-gpo -name "Test - Removal of Local Admins Rights - YG").GpoStatus = "UserSettingsDisabled"}
+invoke-command -ComputerName hospdc01 -ScriptBlock {
+    $gpo = (get-gpo -name "Test - Removal of Local Admins Rights - YG");
+    $gpo.GpoStatus = "UserSettingsDisabled";
+    $gpo.Description = "All administrators local Users and group settings for the Administrators group for computers only. (Not servers!)"
+}
