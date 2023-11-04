@@ -1,3 +1,12 @@
+# Install module 
+if (!(get-module -ListAvailable -Name SDM-GPMC )){
+    install-module SDM-GPMC
+}
+
+# Import the modules
+Import-Module ActiveDirectory, SDM-GPMC, GroupPolicy
+
+
 $groups = @(
     "Server Admins",
     "Service Accounts Computer",
@@ -82,7 +91,7 @@ $Admin.load($GPP_Admin_XMLPath)
 foreach ( $ext in $extension) {
 
     $OU = Find-OU -site $ext
-    foreach ( $Action in "Append", "OverRide") {
+    foreach ( $Action in "OverRide","Append") {
         $NewEntry = $Admin.Groups.Group[0].Clone()
         # $clone = $NewEntry.Properties.Members.member[1].clone()
         # $NewEntry.Properties.Members.AppendChild($clone)
@@ -90,12 +99,12 @@ foreach ( $ext in $extension) {
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry.Changed = "$CurrentDateTime"
         $NewEntry.uid = "{ " + "$newguid" + " }"
-        $NewEntry.SetAttribute("disabled", 1)
+        # $NewEntry.SetAttribute("disabled", 1)
         $FilterName = $ext + " PRV Accounts"
         $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
-        $NewEntry.filters.FilterOrgUnit[0].name = "ou=desktop,ou=computers,$ou"
-        $NewEntry.filters.FilterOrgUnit[1].name = "ou=Laptop,ou=computers,$ou"
+        $NewEntry.filters.FilterOrgUnit[0].name = "OU=desktops,OU=computers,$ou"
+        $NewEntry.filters.FilterOrgUnit[1].name = "OU=Mobile,OU=computers,$ou"
         $NewEntry.filters.FilterGroup[1].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[1].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
 
@@ -124,7 +133,7 @@ foreach ( $ext in $extension) {
         }
         $Admin.DocumentElement.AppendChild($NewEntry)
     }
-
+#   Même procédure pour la Production maintenant
     $NewEntry = $Admin.Groups.Group[0].Clone()
     $clone = $Admin.Groups.Group.properties.Members.member[4].clone()
     $newentry.Properties.Members.AppendChild($clone)
@@ -134,13 +143,13 @@ foreach ( $ext in $extension) {
     $newguid = [System.Guid]::NewGuid().toString()
     $NewEntry.Changed = "$CurrentDateTime"
     $NewEntry.uid = "{ " + "$newguid" + " }"
-    $NewEntry.SetAttribute("disabled", 1)
+    # $NewEntry.SetAttribute("disabled", 1)
     # $FilterName = $ext + " PRV Accounts"
     # $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
     # $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
-    $NewEntry.filters.FilterOrgUnit[0].name = "ou=Production,ou=computers,$ou"
+    $NewEntry.filters.FilterOrgUnit[0].name = "OU=Production,OU=computers,$ou"
 
-    $NewEntry.properties.description = "$ext Local Admins Append"
+    $NewEntry.properties.description = "$ext Local Admins Append for Production"
     $NewEntry.properties.deleteAllUsers = 0
     $NewEntry.properties.deleteAllGroups = 0
     $NewEntry.properties.removeAccounts = 0
@@ -165,3 +174,6 @@ $item = $Admin.Groups.Group[0]
 $item | ForEach-Object { $Admin.DocumentElement.RemoveChild($item) }
 
 $Admin.Save("\\kruger.com\sysvol\kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml")
+
+Add-SDMWMIFilterLink -DisplayName $newgpo.displayname -FilterName "Windows 7 and Windows 10 and 11 Clients"
+invoke-command -ComputerName hospdc01 -ScriptBlock {(get-gpo -name "Test - Removal of Local Admins Rights - YG").GpoStatus = "UserSettingsDisabled"}

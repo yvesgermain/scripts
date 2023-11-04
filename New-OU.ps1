@@ -23,6 +23,7 @@ param(
     [Parameter(Mandatory = $False)]
     $OuDescription
 )
+
 # Import the modules
 Import-Module ActiveDirectory
 # Define the Base OU
