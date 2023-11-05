@@ -1,0 +1,632 @@
+DEBUG OFF
+;
+; TrUsine
+; KRUGER Trois-Rivieres
+; 
+; Fichier de demarrage de session pour le serveur de terminaux
+; Nom			: TRlogin.kix
+; D�velopp� par          : Guy Lacerte      le  14 avril    2004
+; Modifi�   par          : Patrick Reynolds le   2 d�cembre 2016
+; Modifi�   par          : Richard B�land   le  26 novembre 2018
+; Modifi�   par          : Richard B�land   le  01 f�vrier  2021
+; Modifi�   par          : Richard B�land   le  05 mars     2021
+; Modifi�   par          : Richard B�land   le  10 mars     2021
+;--------------------------------------------------------------------------+
+;   Fonctions utilis�es dans ce script                                     ;
+;--------------------------------------------------------------------------+
+
+IF $USER = "WAPCYR" RETURN EndIF
+
+;---------------------------------------------+
+;  Ajout des disques                          ;
+;---------------------------------------------+
+
+Function AddDisk ( $Server, $Partage, $Lettre, Optional $Option )
+   IF ucase($Server) = "TRSDATA"
+      Affiche ( 20, 1, "R", "TRSDATA" )
+   else
+      IF ucase($Lettre) = "G"
+        $Lettre = "Y"
+        $Col  = ASC ($Lettre) - 41
+        Affiche ( 16, $Col, "Y", $Lettre )
+      EndIF
+      IF ucase($Lettre) = "H"
+         IF UCASE ($Partage) = "PROCESSBOOK"
+            Affiche (20, 1, "G", "ProcesBook")
+         Else
+            $Lettre = "X"
+            $Col  = ASC ($Lettre) - 41
+         EndIF
+      EndIF
+   endif
+
+   $Col  = ASC ($Lettre) - 41
+   DelDisk ( $Lettre )
+   $Disk = $Lettre + ":"
+
+   IF $Option = ""
+      Use $Disk  "\\" + $Server + "\" + $Partage
+   Else
+      Use $Disk  "\\" + $Server + "\" + $Partage  /Persistent
+   EndIF
+
+   IF @ERROR = 0
+      Affiche ( 16, $Col, "G", $Lettre )
+   ELSE
+      Affiche ( 16, $Col, "R", $Lettre )
+   EndIF
+
+EndFunction
+
+Function AddNewDisk ( $Server, $Partage1, $Partage2, $Lettre, Optional $Option )
+   $Col  = ASC ($Lettre) - 41
+   DelDisk ( $Lettre )
+   $Disk = $Lettre + ":"
+
+   IF $Option = ""
+      Use $Disk /delete
+   Else
+      Use $Disk /delete  /Persistent
+   EndIF
+
+   $Disque  = "\\" + $Server + "\" + $Partage1 + "\" + $Partage2
+
+   IF $Option = ""
+      Use $Disk  $Disque
+   Else
+      Use $Disk  $Disque  /Persistent
+   EndIF
+
+   IF @ERROR = 0
+      Affiche ( 16, $Col, "G", $Lettre )
+   ELSE
+      Affiche ( 16, $Col, "R", $Lettre )
+   EndIF
+   
+EndFunction
+
+
+Function AddDiskOpt ( $Server, $Partage, $Lettre, Optional $Option )
+   $Col  = ASC ($Lettre) - 41
+   $Disk = $Lettre + ":"
+   IF $Option = ""
+      Use $Disk  "\\" + $Server + "\" + $Partage
+   Else
+      Use $Disk  "\\" + $Server + "\" + $Partage  /Persistent
+   EndIF
+
+   IF @ERROR = 0
+      Affiche ( 16, $Col, "G", $Lettre )
+   ELSE
+      Affiche ( 16, $Col, "R", $Lettre )
+   EndIF
+   
+EndFunction
+
+;---------------------------------------------+
+;  Ajout des disques WAN                      ;
+;---------------------------------------------+
+
+Function AddDiskWAN ( $PATH, $Lettre, $USER, $Pass )
+   $Col  = ASC ($Lettre) - 41
+   DelDisk ( $Lettre )
+   $Disk = $Lettre + ":"
+   Use $Disk $PATH + " /user: " + $USER + " /password: " + $Pass
+   IF @ERROR = 0
+      Affiche ( 16, $Col, "G", $Lettre )
+   ELSE
+      Affiche ( 16, $Col, "R", $Lettre )
+   EndIF
+   
+EndFunction
+
+
+Color w+/n
+? " "
+? "+------------------------------------------------------------------------------+"
+? "|               Suppression des imprimantes /Removing Printers                 |"
+? "+------------------------------------------------------------------------------+"
+? " "
+; Modifi� par Patrick Reynolds le 8 novembre 2017
+
+
+Function DelPrinter ( $PrinterName, $ServerName )
+	If KeyExist("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+		If DELPRINTERCONNECTION("\\" +$ServerName + "\" + $PrinterName) = 0
+			Color g+/n
+			? "Imprimante supprim� / Printer removed--> "+ $PrinterName
+        	EndIf
+		Sleep 1
+		If KeyExist("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+			DelTree("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+			Sleep 1
+		EndIf
+	EndIf
+	Color w+/n
+EndFunction
+
+$PrinterCount=1
+WHILE $PrinterCount < 200
+  $PrintertoDelete="LP" + $PrinterCount
+  
+DelPrinter($PrintertoDelete, "trsvps01")
+DelPrinter($PrintertoDelete, "trsvps01.kruger.com")
+  
+  $PrinterCount=$PrinterCount+1
+LOOP 
+
+
+Color w+/n
+? " "
+? "+------------------------------------------------------------------------------+"
+? "|                 Connexion des imprimantes /Printer Mapping                   |"
+? "+------------------------------------------------------------------------------+"
+? " "
+; Modifi� par Patrick Reynolds le 8 novembre 2017
+
+
+Function AddPrinter ( $PrinterName, $ServerName )
+	$Group = "TrPrint" + $PrinterName
+	If InGroup ($Group)
+				If ADDPRINTERCONNECTION("\\" +$ServerName +"\"+ $PrinterName) = 0	
+			Color g+/n
+			? "Imprimante ajout� / Printer added --> \\" +$ServerName +"\"+ $PrinterName
+			
+		Else
+			$Count=3
+			WHILE $Count > 0
+				sleep 5
+				? "Sleep --> "+ $PrinterName
+				If ADDPRINTERCONNECTION("\\" +$ServerName +"\"+ $PrinterName) = 0
+					$Count=-1
+					
+				Else
+					$Count=$Count - 1
+				EndIf
+			LOOP 
+
+			If $Count = -1
+				Color g+/n
+				? "Imprimante ajout� / Printer added --> "+ $PrinterName
+			Else
+				Color r+/n
+				? "Probl�me lors de l'ajout / Problem adding printer --> "+ $PrinterName
+			EndIf
+		EndIf
+		If InGroup ($Group+"_DF")
+			If SETDEFAULTPRINTER("\\" +$ServerName +"\"+ $PrinterName) = 0
+				? "Imprimante par defaut / Default printer --> "+ $PrinterName
+			Else
+				Color r+/n
+				? "Probl�me Imprimante par defaut / Problem Default printer --> "+ $PrinterName
+			EndIf
+		EndIf	
+		Color w+/n
+	EndIf
+	
+EndFunction
+
+
+$PrinterCount=10
+WHILE $PrinterCount < 200
+
+  $PrintertoAdd="LP" + $PrinterCount
+  
+  $printsername = "trsvps01.kruger.com"
+    
+  AddPrinter($PrintertoAdd, $printsername)
+  
+  $PrinterCount=$PrinterCount+1
+LOOP 
+
+AddPrinter("LP128D", "trsvps01.kruger.com")
+AddPrinter("TrpLabel2", "trsvps01.kruger.com")
+AddPrinter("TrpLabelKit", "trsvps01.kruger.com")
+AddPrinter("TrpLabelReception", "trsvps01.kruger.com")
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  End of Printer Mappings                                                  ;
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+:PRINTER_END
+
+   
+;---------------------------------------------+
+;  D�connection d'un disque                   ;
+;---------------------------------------------+
+
+Function DelDisk ( $Lettre, Optional $Option )
+   $Col  = ASC ( $Lettre ) - 41
+   $Disk = $Lettre + ":"
+   IF $Option = ""
+      Use $Disk /delete
+   Else
+      Use $Disk /delete  /Persistent
+   EndIF
+   IF @ERROR = 0
+      Affiche ( 16, $Col, "Y", $Lettre )
+   ELSE
+      Affiche ( 16, $Col, "R", $Lettre )
+   EndIF
+EndFunction
+
+Function ChangeValeurClefRegistre ( $Clef, $Champs, $Valeur, $TypeRegistre )
+   IF ( KeyExist ( $Clef) )
+      WriteValue ( $Clef, $Champs, $Valeur, $TypeRegistre )
+   Else
+      AddKey ( $Clef )
+      WriteValue ( $Clef, $Champs, $Valeur, $TypeRegistre )
+   EndIf
+EndFunction
+
+
+;---------------------------------------------+
+;  Changement du format de date               ;
+;---------------------------------------------+
+
+Function ChgFormatDate
+
+    ChangeValeurClefRegistre ("HKCU\Control Panel\International", "iDate", "1", "REG_SZ" )
+    ChangeValeurClefRegistre ("HKCU\Control Panel\International", "sShortDate", "dd/MM/yyyy", "REG_SZ" )
+
+EndFunction
+
+;---------------------------------------------+
+;  On Affiche un message � l'�cran            ;
+;---------------------------------------------+
+
+Function Affiche ( $Lig, $Col, $Coul, $Message )
+   AT ( $Lig, $Col)  Color  $Coul/W+  $Message  Color C/W+
+EndFunction
+
+;--------------------------------------------------------------------------+
+;  PROGRAMME PRINCIPAL                                                     ;
+;--------------------------------------------------------------------------+
+
+;---------------------------------------------------------------+
+;  Construction de l'�cran des r�sultats des connexions r�seau. ;
+;---------------------------------------------------------------+
+
+break off
+cls
+
+? " "
+? "+------------------------------------------------------------------------------+"
+? "|           K R U G E R   S . E . C.  -  T R O I S - R I V I E R E S           |"
+? "+------------------------------------------------------------------------------+"
+? " "
+
+IF @MONTHNO=1  $MOIS = "janvier"        EndIF
+IF @MONTHNO=2  $MOIS = "fevrier"        EndIF
+IF @MONTHNO=3  $MOIS = "mars"           EndIF
+IF @MONTHNO=4  $MOIS = "avril"          EndIF
+IF @MONTHNO=5  $MOIS = "mai"            EndIF
+IF @MONTHNO=6  $MOIS = "juin"           EndIF
+IF @MONTHNO=7  $MOIS = "juillet"        EndIF
+IF @MONTHNO=8  $MOIS = "aout"           EndIF
+IF @MONTHNO=9  $MOIS = "septembre"      EndIF
+IF @MONTHNO=10 $MOIS = "octobre"        EndIF
+IF @MONTHNO=11 $MOIS = "novembre"       EndIF
+IF @MONTHNO=12 $MOIS = "decembre"       EndIF
+
+; ---- Ajustement de l'heure du systeme
+settime "\\time.kruger.com"
+
+$USER=@userid
+
+$CPU         = @cpu
+$DATETIME    = " " + @MDAYNO + " " + $MOIS + " " + @YEAR + ", " + @TIME + " " 
+$NOMPC       = @WKSTA
+$OS          = @ProductType
+$Os          = ucase($OS)
+$POSDATETIME = 70-LEN($DATETIME)
+$Speed       = @mhz
+
+If @ONWOW64 
+   $x64         = " 64 bits"
+Else
+   $x64         = " 32 bits"
+EndIf
+
+Affiche ( 01, 03, "G",  "KRUGER S.E.C. ( Trois-Rivi�res )"                )
+Affiche ( 01, 50, "G",  $DATETIME                                         )
+Affiche ( 03, 03, "Y",  "Usager.............: "                           )
+Affiche ( 03, 24, "G",  UCASE( $USER )                                    )
+Affiche ( 03, 51, "Y",  "( "+@FULLNAME+" )"                               )
+Affiche ( 04, 03, "Y",  "Privilege..........: "+@PRIV                     )
+Affiche ( 04, 51, "Y",  "Domaine...........:"                             )
+Affiche ( 04, 71, "G",  @Domaine                                          )
+Affiche ( 05, 03, "Y",  "Poste..............: "                           )
+Affiche ( 05, 24, "G",  @WKSTA                                            )
+Affiche ( 05, 51, "Y",  "Domaine Controler.: "                            )
+Affiche ( 05, 71, "G",  RIGHT( @LServer, 6 )                              )
+Affiche ( 06, 03, "Y",  "OS.................: "+$OS+$x64+" - "+@CSD   )
+Affiche ( 07, 03, "Y",  "Adresse IP.........: "                           )
+Affiche ( 07, 23, "G",  @IPADDRESS0                                       )
+Affiche ( 07, 51, "Y",  "Version du KIX....: "+@KIX                       )
+Affiche ( 08, 03, "Y",  "Adresse reseau.....: "                           )
+Affiche ( 08, 24, "G",  @ADDRESS                                          )
+Affiche ( 08, 51, "Y",  "Age password (JRS):    /   "                     )
+Affiche ( 08, 71, "G",  @PWAGE                                            )
+Affiche ( 08, 76, "G",  @MAXPWAGE                                         )
+Affiche ( 09, 03, "Y",  "Version MAJ........: 12/04/2004"                 )
+Affiche ( 10, 03, "Y",  "CPU................: "+@cpu                      )
+Affiche ( 11, 03, "Y",  "Vitesse.(MHz)......: "+@mhz                      )
+Affiche ( 12, 03, "Y",  "M�moire vive.......: "+MemorySize(0)             )
+Affiche ( 14, 03, "Y",  "Groupe de travail..:"                            )
+Affiche ( 15, 03, "Y",  "Disques............:"                            )
+Affiche ( 15, 24, "Y",  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                      )
+Affiche ( 16, 03, "Y",  "Disques.ajout�s....:"                            )
+Affiche ( 16, 24, "Y",  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"                      )
+Affiche ( 17, 03, "Y",  "Imprimante (def.)..:"                            )
+Affiche ( 18, 03, "Y",  "Imprimantes........:"                            )
+
+ChgFormatDate ()
+
+; Couleur du fond d'ecran
+writevalue ("Hkey_Current_User\Control Panel\Colors",                           "BackGround",        "58 110 165",  "Reg_SZ")
+writevalue ("Hkey_Current_User\Software\Microsoft\Internet Explorer\Main",      "Use_DlgBox_Colors", "no",          "Reg_SZ")
+writevalue ("Hkey_Current_User\Software\Microsoft\Internet Explorer\Settings",  "BackGround Color",  "255,255,254", "Reg_SZ")
+; pour le probleme avec JDE
+writevalue ("Hkey_Current_User\Software\Microsoft\Windows\CurrentVersion\Internet Settings",  "MaxConnectionsPerServer",  "10", "Reg_DWord")
+writevalue ("Hkey_Current_User\Software\Microsoft\Windows\CurrentVersion\Internet Settings",  "MaxConnectionsPer1_0Server",  "10", "Reg_DWord")
+
+; Parametres Internet Explorer
+writeValue ("Hkey_Current_User\Console",                                   "fullscreen", "0",  "Reg_DWord")
+writevalue ("Hkey_Current_User\Software\Microsoft\Internet Explorer\Main", "fullscreen", "no", "Reg_SZ")
+
+; Creation d'un WelCome Screen
+writevalue ("Hkey_Current_User\Control Panel\Desktop",   "TileWallpaper", "0", "Reg_SZ")
+writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "TileWallpaper", "0", "Reg_SZ")
+
+writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallpaperStyle", "2", "Reg_SZ")
+writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallpaperStyle", "2", "Reg_SZ")
+
+writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
+writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
+
+
+if substr($NomPC, 1, 5) = "TRWTS"
+   ? "======  1  ======="
+   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags") = 0
+      ? "Key 1 existe"
+   else
+      ? "xxxx 1"
+      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags")
+   endif
+
+   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers") = 0
+      ? "Key 2 existe"
+   else
+      ? "xxxxxx 2"
+      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")
+   endif
+
+   if readvalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", "c:\Program files\Ericom Software\PowerTerm\ptw.exe") = 0
+      ? "Key 3 existe"
+   else
+      ? "X-X-X-X 3"
+      writevalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" , "c:\Program files\Ericom Software\PowerTerm\ptw32.exe", "WINXP", "Reg_SZ")
+   endif
+ELSE
+   ? "------   77 ------"
+endif
+
+
+;***********************************************************************
+;      Connecte le disque Personnel                                    *
+;***********************************************************************
+
+Use *  /delete 
+
+;IF InGroup ("TRgpoBalanceBourbeau")
+;   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+
+Use F: /delete  /Persistent
+Use G: /delete  /Persistent
+Use U: /delete  /Persistent
+Use Z: /delete  /Persistent
+
+; CONNEXION DES PARTAGES IMPORTANTS - DISQUES G, H ET Z (R.BELAND)
+
+AddDisk ( "TRsData",     "Departements",            "G", "/Persistent:yes" )
+AddDisk ( "trsdata",     "ProcessBook",             "H", "/Persistent:yes" )
+AddDisk ( "TRsData",     "Temporaire",              "Z", "/Persistent:yes" )
+
+;;MESSAGEBOX ("Veuillez laisser votre ordinateur ouvert et connect� au r�seau durant la p�riode des f�tes de No�l. Merci, le service informatique", "IMPORTANT!", 48)
+
+; CONNEXION DES PARTAGES PERSONNELS - DISQUE U(R.BELAND)
+IF InGroup ("TRgpoMillWide" )
+   AddNewDisk  ( "TRsData", "usagers$\Millwide", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoAchats")
+   AddNewDisk  ( "TRsData", "usagers$\Achats", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoAdministration")
+   AddNewDisk  ( "TRsData", "usagers$\Administration", $User, "U", "/Persistent:yes") 
+   GOTO TheEnd
+EndIF
+
+;IF InGroup ("TRgpoAdministrateurs")  ; Groupe est vide
+;   AddNewDisk  ( "TRsData", "usagers$\Administrateurs", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+
+IF InGroup ("TRgpoBobineuses")  ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\Bobineuses", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoChaufferie")
+   AddNewDisk  ( "TRsData", "usagers$\Chaufferie", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+;IF InGroup ("TRgpoCoucheuses")
+;   AddNewDisk  ( "TRsData", "usagers$\Coucheuses", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+
+IF InGroup ("TRgpoComptabilite")
+   AddNewDisk  ( "TRsData", "usagers$\Comptabilite", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoElectrique")
+   AddNewDisk  ( "TRsData", "usagers$\Electrique", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoFinition")
+   AddNewDisk  ( "TRsData", "usagers$\Finition", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoEntretien")
+   AddNewDisk  ( "TRsData", "usagers$\Entretien", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoFournisseurs")
+   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoFormation")
+   AddNewDisk  ( "TRsData", "usagers$\Formation", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoTerminalServer")
+   Affiche ( 19, 03, "Y",  "Terminal Server:"       )
+   AddNewDisk  ( "TRsData", "usagers$\General", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoInformatique")
+   AddNewDisk  ( "TRsData", "usagers$\Informatique", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+Endif
+
+IF InGroup ("TRgpoIngenierie")
+   AddNewDisk  ( "TRsData", "usagers$\Ingenierie", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+Endif
+
+IF InGroup ("TRgpoLaboratoire")
+   AddNewDisk  ( "TRsData", "usagers$\Laboratoire", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+Endif
+
+IF InGroup ("TRgpoLubrification")
+   AddNewDisk  ( "TRsData", "usagers$\Lubrification", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoMachines")
+   AddNewDisk  ( "TRsData", "usagers$\Machines", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoPatesDesEncree")  ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\Pates", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoRelationsHumaines")
+   AddNewDisk  ( "TRsData", "usagers$\Personnel", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoStatisticiens")  ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\Comptabilite", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+;IF InGroup ("TRgpoTamisage")  ; Groupe est vide
+;   AddNewDisk  ( "TRsData", "usagers$\Tamisage", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+;
+;IF InGroup ("TRgpoBibli")  ; Groupe est vide
+;   AddNewDisk  ( "TRsData", "usagers$\Bibli", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+;
+;IF InGroup ("TRgpoMobilisation")  ; Groupe est vide
+;   AddNewDisk  ( "TRsData", "usagers$\Mobilisation", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
+
+IF InGroup ("TRgpotests") ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\informatique", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoBalanceBourbeau")
+   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoCmsCriq")  ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+IF InGroup ("TRgpoHelpDesk")  ; Groupe est vide
+   AddNewDisk  ( "TRsData", "usagers$\Informatique", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
+
+;---- Si on arrive ici c'est que l'usager n'appartient a aucun groupe de travail ----
+GOTO TheEnd
+
+
+;--------------------------------------------------------------------------+
+;   Fin du programme principal                                             ;
+;--------------------------------------------------------------------------+
+
+:TheEnd
+
+
+;SELECT
+;
+;CASE $USER = "TRCEDULEUR" 
+;     Use F: "\\alpha6\newsprint" /user:alpha6\smbnews /password:smbnews22	 
+;	 
+;CASE $USER = "TRRBELAND" 
+;     Use F: "\\alpha6\newsprint" /user:alpha6\smbnews /password:smbnews22
+;     Use S: "\\trdpnasot1\otbackup" /user:trdpnasot1\trnas /password:Regurk09
+;     Use T: "\\trdpnasit\itbackup" /user:trdpnasit\trnas /password:Regurk09
+;
+;CASE $USER = "TRJSBERGERON" 
+;     Use T: "\\trdpnasit\itbackup" /user:trdpnasit\trnas /password:Regurk09
+;
+;CASE $USER = "TRKBELIVEAU" 
+;     Use T: "\\trdpnasit\itbackup" /user:trdpnasit\trnas /password:Regurk09
+;
+;CASE $USER = "TRDLUSSIER" 
+;     Use T: "\\trdpnasit\itbackup" /user:trdpnasit\trnas /password:Regurk09
+;
+;CASE $USER = "TRAVALOIS" 
+;     Use T: "\\trdpnasit\itbackup" /user:trdpnasit\trnas /password:Regurk09
+;
+;CASE $USER = "TRJFAFARD" 
+;     Use S: "\\trdpnasot1\otbackup" /user:trdpnasot1\trnas /password:Regurk09
+;
+;EndSelect
+	 
+
+Affiche ( 22, 03, "G", "Termin� ! ... " )
+
+$Client=@ProductType
+
+
+? ?
