@@ -55,22 +55,9 @@ $Functions | ForEach-Object {
     New-Variable -Name $_.function -PassThru $_
 }
 
-Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
-    if ($_ -match "use ") { $letter, $path = $_.replace('"', "").split(":"); $letter = $letter -replace ("use " , "").trim() }
-    if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
-
-    if ($IsMember -eq $null -and $oldIsMember -ne $null) {
-        $_ | Select-Object  @{name = "Letter"; e = { $letter } },
-        @{ name = "Path" ; e = { $path.trim() + "\" + $MapDrive.trim() } },
-        @{ name = "Group"; e = { $OldIsMember } }
-    }
-    $oldIsMember = $isMember
-}
-
 if ($case) { Remove-Variable case }
-$tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
+$tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
+    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notmatch "^;" } | ForEach-Object {
     if ($_ -like "Function*" -or $_ -like "EndFunction") {
         if ( $_ -like "Function*") { $Read = $False } else {
             if ($_ -like "EndFunction") { $Read = $true }
@@ -83,9 +70,9 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
             }
             if ($_ -match "AddNewDisk") {
                 $string = $_.replace(')', "")
-                $server, $share, $scrap, $letter, $option1 = $string.split(",", [StringSplitOptions]::RemoveEmptyEntries)
+                $server, $share, $Share2, $letter, $option1 = $string.split(",", [StringSplitOptions]::RemoveEmptyEntries)
                 $server = $server.replace('   AddNewDisk  ( "', "").replace('"', "").trim()
-                $folder = '\\' + $Server + '\' + $share.trim()
+                $folder = '\\' + $Server + '\' + $share.trim() +'\' + $Share2.trim()
                 $letter = $letter.replace('"', "")
                 $option1 = $option1.replace('"', "")
                 $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":", "").trim() } },
@@ -109,7 +96,7 @@ $tr = Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
                 $Server, $Share, $letter, $option1 = $string.split(",", [StringSplitOptions]::RemoveEmptyEntries)
                 $Server = $server.split('"')[1].trim()
                 $Share = $Share.trim()
-                $folder = '\\' + $Server + '\' + $share + '\$user'
+                $folder = '\\' + $Server + '\' + $share
                 $letter = $letter.replace(":", "").replace('"', "").trim()
                 $option1 = $option1.replace('"', "")
                 $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":", "") } },
