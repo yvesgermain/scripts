@@ -220,7 +220,7 @@ WHILE $PrinterCount < 200
 LOOP 
 
 AddPrinter("LP128D", "trsvps01.kruger.com")
-AddPrinter("TrpLabel2", "trsvps01.kruger.com")
+; AddPrinter("TrpLabel2", "trsvps01.kruger.com")   ; imprimante existe plus YG
 AddPrinter("TrpLabelKit", "trsvps01.kruger.com")
 AddPrinter("TrpLabelReception", "trsvps01.kruger.com")
 
@@ -420,10 +420,10 @@ endif
 
 Use *  /delete 
 
-;IF InGroup ("TRgpoBalanceBourbeau")
-;   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
-;   GOTO TheEnd
-;EndIF
+IF InGroup ("TRgpoBalanceBourbeau")
+   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+   GOTO TheEnd
+EndIF
 
 Use F: /delete  /Persistent
 Use G: /delete  /Persistent
