@@ -172,11 +172,11 @@ $ho + $CB + $ls + $PD + $PB + $ET + $TU | Format-Table -AutoSize
 
 ####################  PRINTER STUFF ********************
 Get-ADGroupMember "KR Print Spooler Disable Exceptions" | ForEach-Object -Parallel {
-    $filter = @{LogName = "Microsoft-Windows-PrintService/Operational"; id = "307" }
+    $filter = @{LogName = "Microsoft-Windows-PrintService/Operational"; id = "307","310" }
     $name = $_.name
-    (Get-WinEvent -ComputerName $name -FilterHashtable $filter)[0..5] | Select-Object @{name = "Server"; e = { $name } },
+    (Get-WinEvent -ComputerName $name -FilterHashtable $filter) | Select-Object @{name = "Server"; e = { $name } },
     @{name = "User"; e = { $_.Properties[2].value } },
-    @{name = "Printer"; e = { $_.Properties[4].value } }
+    @{name = "Printer"; e = { $_.Properties[3].value } }
 }
 
 
