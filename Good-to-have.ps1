@@ -72,7 +72,7 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
                 $string = $_.replace(')', "")
                 $server, $share, $Share2, $letter, $option1 = $string.split(",", [StringSplitOptions]::RemoveEmptyEntries)
                 $server = $server.replace('   AddNewDisk  ( "', "").replace('"', "").trim()
-                $folder = '\\' + $Server + '\' + $share.trim() +'\' + $Share2.trim()
+                $folder = '\\' + $Server + '\' + $share.trim() + '\' + $Share2.trim()
                 $letter = $letter.replace('"', "")
                 $option1 = $option1.replace('"', "")
                 $_ | Select-Object @{name = "Letter" ; e = { $letter.replace(":", "").trim() } },
@@ -82,12 +82,15 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
                 @{name = "Password"; e = { $pwd.replace('/password:', "") } },
                 @{name = "Option1"; e = { $option1.trim() } },
                 @{name = "Option2"; e = { $option2 } }
-                if ($letter -or $path) { Remove-Variable letter }
+                if ($letter) { Remove-Variable letter }
                 If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
                 if ($user) { Remove-Variable user }
                 if ($option1) { Remove-Variable Option1 }
                 if ($OPtion2) { Remove-Variable option2 }
+                if ($group) { Remove-Variable group }
+                if ($path) { Remove-Variable path }
+                if ($case) { Remove-Variable case }
                 Remove-Variable String
 
             }
@@ -112,6 +115,9 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
                 if ($user) { Remove-Variable user }
                 if ($option1) { Remove-Variable Option1 }
                 if ($OPtion2) { Remove-Variable option2 }
+                if ($group) { Remove-Variable group }
+                if ($path) { Remove-Variable path }
+                if ($case) { Remove-Variable case }
                 Remove-Variable String
             }
             if ($_ -match "CASE ") {
@@ -129,18 +135,44 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
                 @{name = "Password"; e = { $pwd.replace('/password:', "") } },
                 @{name = "Option1"; e = { $option1.trim() } },
                 @{name = "Option2"; e = { $option2 } }
-                if ($letter -or $path) { Remove-Variable letter , path }
+                if ($letter) { Remove-Variable letter }
                 If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
                 if ($user) { Remove-Variable user }
                 if ($option1) { Remove-Variable Option1 }
                 if ($OPtion2) { Remove-Variable option2 }
+                if ($group) { Remove-Variable group }
+                if ($path) { Remove-Variable path }
+                if ($case) { Remove-Variable case }
                 Remove-Variable String
             }
         }
     }
 }
 $tr | Format-Table -AutoSize
+
+($tr | Where-Object { $_.group } | ForEach-Object {
+    $group = $_.group 
+    $path = $_.path -replace ('\$user', '')
+    if ((Get-ADGroupMember $group).count -gt 0) {
+        $members = (Get-ADGroupMember $group).samaccountname
+        $members | ForEach-Object {
+            if (!(Test-Path "$path$_")) { "$path$_" }
+        }
+    }
+}).count
+
+($tr | Where-Object { $_.group } | ForEach-Object {
+    $group = $_.group 
+    $path = $_.path -replace ('\$user', '')
+    if ((Get-ADGroupMember $group).count -gt 0) {
+        $members = (Get-ADGroupMember $group).samaccountname
+        $members | ForEach-Object {
+            if (Test-Path "$path$_") { "$path$_" }
+        }
+    }
+}).count
+
 
 $ho = convert-kix2Drive \\kruger.com\NETLOGON\ho\kixtart.kix
 
@@ -172,7 +204,7 @@ $ho + $CB + $ls + $PD + $PB + $ET + $TU | Format-Table -AutoSize
 
 ####################  PRINTER STUFF ********************
 Get-ADGroupMember "KR Print Spooler Disable Exceptions" | ForEach-Object -Parallel {
-    $filter = @{LogName = "Microsoft-Windows-PrintService/Operational"; id = "307","310" }
+    $filter = @{LogName = "Microsoft-Windows-PrintService/Operational"; id = "307", "310" }
     $name = $_.name
     (Get-WinEvent -ComputerName $name -FilterHashtable $filter) | Select-Object @{name = "Server"; e = { $name } },
     @{name = "User"; e = { $_.Properties[2].value } },
@@ -189,7 +221,7 @@ Get-ADGroupMember "KR Print Spooler Disable Exceptions" | ForEach-Object {
     }
 }
 ######################## Logon of administrator's account ##########################
-$servers = get-adcomputer -Filter { enabled -eq $true -and operatingsystem -like "*server*"} -Properties operatingsystem
+$servers = Get-ADComputer -Filter { enabled -eq $true -and operatingsystem -like "*server*" } -Properties operatingsystem
 $servers | ForEach-Object -Parallel {
     $date = (Get-Date).AddMonths(-1) 
     Get-WinEvent -ComputerName $_.name -FilterHashtable @{ LogName = 'security'; StartTime = $Date; Id = '4672', '4648'; data = "administrator" }
@@ -212,7 +244,7 @@ Get-ADOrganizationalUnit -Filter { name -like "Disabled *" } | ForEach-Object {
                     $prefix = $null
                 } 
                 $dn = $prefix + [string]::join( ",", $x).replace(",", ",OU=").replace(",OU=kruger.com" , ",DC=Kruger,DC=COM").replace("kruger.com" , "DC=Kruger,DC=COM")  
-                if ($dn -in $dist) { $name}
+                if ($dn -in $dist) { $name }
             }
         }
     }

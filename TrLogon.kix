@@ -377,41 +377,41 @@ writeValue ("Hkey_Current_User\Console",                                   "full
 writevalue ("Hkey_Current_User\Software\Microsoft\Internet Explorer\Main", "fullscreen", "no", "Reg_SZ")
 
 ; Creation d'un WelCome Screen
-writevalue ("Hkey_Current_User\Control Panel\Desktop",   "TileWallpaper", "0", "Reg_SZ")
-writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "TileWallpaper", "0", "Reg_SZ")
+;writevalue ("Hkey_Current_User\Control Panel\Desktop",   "TileWallpaper", "0", "Reg_SZ")
+;writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "TileWallpaper", "0", "Reg_SZ")
+;
+;writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallpaperStyle", "2", "Reg_SZ")
+;writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallpaperStyle", "2", "Reg_SZ")
 
-writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallpaperStyle", "2", "Reg_SZ")
-writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallpaperStyle", "2", "Reg_SZ")
-
-writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
-writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
+; writevalue ("Hkey_Current_User\Control Panel\Desktop",   "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
+; writevalue ("Hkey_Users\.Default\Control Panel\Desktop", "WallPaper", "\\KrugerInc\Netlogon\TR\WelComeScreen.bmp", "Reg_SZ")
 
 
-if substr($NomPC, 1, 5) = "TRWTS"
-   ? "======  1  ======="
-   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags") = 0
-      ? "Key 1 existe"
-   else
-      ? "xxxx 1"
-      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags")
-   endif
-
-   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers") = 0
-      ? "Key 2 existe"
-   else
-      ? "xxxxxx 2"
-      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")
-   endif
-
-   if readvalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", "c:\Program files\Ericom Software\PowerTerm\ptw.exe") = 0
-      ? "Key 3 existe"
-   else
-      ? "X-X-X-X 3"
-      writevalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" , "c:\Program files\Ericom Software\PowerTerm\ptw32.exe", "WINXP", "Reg_SZ")
-   endif
-ELSE
-   ? "------   77 ------"
-endif
+;if substr($NomPC, 1, 5) = "TRWTS"
+;   ? "======  1  ======="
+;   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags") = 0
+;      ? "Key 1 existe"
+;   else
+;      ? "xxxx 1"
+;      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags")
+;   endif
+;
+;   if keyexist ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers") = 0
+;      ? "Key 2 existe"
+;   else
+;      ? "xxxxxx 2"
+;      addkey ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")
+;   endif
+;
+;   if readvalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", "c:\Program files\Ericom Software\PowerTerm\ptw.exe") = 0
+;      ? "Key 3 existe"
+;   else
+;      ? "X-X-X-X 3"
+;      writevalue ("Hkey_Current_User\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" , "c:\Program files\Ericom Software\PowerTerm\ptw32.exe", "WINXP", "Reg_SZ")
+;   endif
+;ELSE
+;   ? "------   77 ------"
+;endif
 
 
 ;***********************************************************************
@@ -420,10 +420,10 @@ endif
 
 Use *  /delete 
 
-IF InGroup ("TRgpoBalanceBourbeau")
-   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
-   GOTO TheEnd
-EndIF
+;IF InGroup ("TRgpoBalanceBourbeau")
+;   AddNewDisk  ( "TRsData", "usagers$\Fournisseurs", $User, "U", "/Persistent:yes")  
+;   GOTO TheEnd
+;EndIF
 
 Use F: /delete  /Persistent
 Use G: /delete  /Persistent
