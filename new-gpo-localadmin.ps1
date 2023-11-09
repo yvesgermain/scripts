@@ -13,7 +13,8 @@ $groups = @(
     "Site Admins",
     "Site Techs")
 
-$extension = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
+# $extension = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
+$kpextension = "BD", "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
 
 Function Find-OU {
     param($site)
@@ -24,10 +25,11 @@ Function Find-OU {
         "BR" { $Extension = "Bromptonville"  ; $BusinessUnit = "Publication" ; $resp = "richard.perras@kruger.com" }
         "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
         "CA" { $Extension = "Calgary"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
-        "EX" { $Extension = "External"; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "CB" { $Extension = "Corner Brook"  ; $BusinessUnit = "Publication" ; $resp = "kent.pike@kruger.com" }
         "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "ET" { $Extension = "Elizabethtown"  ; $BusinessUnit = "Packaging" ; $resp = "matthew.barnes@kruger.com" }
+        # "Es" { $Extension = "eStruxture"  ; $BusinessUnit = "Kruger Products"; $resp = "samuel.ponsot@kruger.com" }
+        "EX" { $Extension = "External"; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "HO" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "HO SS" { $Extension = "Shared Services"  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "KR" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
@@ -40,7 +42,7 @@ Function Find-OU {
         "LX" { $Extension = "Lennoxville"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "LF" { $Extension = "Lions Falls"  ; $BusinessUnit = "Energy" ; $resp = "" }
         "MP" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
-        "KT" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" } # old naming convention
+        # "KT" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" } # old naming convention
         "KL" { $Extension = "Monteregie" ; $BusinessUnit = "Energy" ; $resp = "" }
         "MI" { $Extension = "Mississauga"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
         "NW" { $Extension = "New Westminster"  ; $BusinessUnit = "Kruger Products" ; $resp = "russell.longakit@kruger.com" }
@@ -76,9 +78,9 @@ Function Find-OU {
     return $OU
 }
 
-"New GPO removal of Local Admins Rights"
+"New GPO - KP Apply Local Admins"
 
-$GPOName = "Test - Removal of Local Admins Rights - YG"
+$GPOName = "KP Apply Local Admins"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = Copy-GPO -SourceName "KR Removal of Local Admins Rights" -TargetName $gponame
@@ -88,7 +90,7 @@ $GPP_Admin_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Groups.xml"
 $Admin = New-Object -TypeName XML
 $Admin.load($GPP_Admin_XMLPath)
 "Creating " + $newgpo.displayname + " from KR Removal of Local Admins Rights"
-foreach ( $ext in $extension) {
+foreach ( $ext in $kpextension ) {
 
     $OU = Find-OU -site $ext
     foreach ( $Action in "OverRide","Append") {
@@ -99,7 +101,7 @@ foreach ( $ext in $extension) {
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry.Changed = "$CurrentDateTime"
         $NewEntry.uid = "{ " + "$newguid" + " }"
-        # $NewEntry.SetAttribute("disabled", 1)
+        $NewEntry.SetAttribute("disabled", 1)
         $FilterName = $ext + " PRV Accounts"
         $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
         $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
@@ -117,7 +119,7 @@ foreach ( $ext in $extension) {
             $NewEntry.filters.FilterGroup[1].not = 0
         }
         if ( $Action -eq "OverRide") {
-            $NewEntry.properties.description = "$ext Local Admins"
+            $NewEntry.properties.description = "$ext Local Admins override"
             $NewEntry.properties.deleteAllUsers = 1
             $NewEntry.properties.deleteAllGroups = 1
             $NewEntry.properties.removeAccounts = 1
@@ -143,7 +145,7 @@ foreach ( $ext in $extension) {
     $newguid = [System.Guid]::NewGuid().toString()
     $NewEntry.Changed = "$CurrentDateTime"
     $NewEntry.uid = "{ " + "$newguid" + " }"
-    # $NewEntry.SetAttribute("disabled", 1)
+    $NewEntry.SetAttribute("disabled", 1)
     # $FilterName = $ext + " PRV Accounts"
     # $NewEntry.filters.FilterGroup[0].name = ("KRUGERINC\" + $ext + " PRV Accounts" )
     # $NewEntry.filters.FilterGroup[0].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
@@ -176,8 +178,8 @@ $item | ForEach-Object { $Admin.DocumentElement.RemoveChild($item) }
 $Admin.Save("\\kruger.com\sysvol\kruger.com\Policies\{$guid}\machine\Preferences\Groups\Groups.xml")
 
 Add-SDMWMIFilterLink -DisplayName $newgpo.displayname -FilterName "Windows 7 and Windows 10 and 11 Clients"
-invoke-command -ComputerName hospdc01 -ScriptBlock {
-    $gpo = (get-gpo -name "Test - Removal of Local Admins Rights - YG");
+invoke-command -ComputerName hospdc01 -ArgumentList $gponame -ScriptBlock {param ($gponame);
+    $gpo = (get-gpo -name $GPOName);
     $gpo.GpoStatus = "UserSettingsDisabled";
     $gpo.Description = "All administrators local Users and group settings for the Administrators group for computers only. (Not servers!)"
 }
