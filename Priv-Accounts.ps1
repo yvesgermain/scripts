@@ -6,22 +6,25 @@ $computers = Get-ADOrganizationalUnit -Filter { name -eq "Computers" } | Where-O
 Invoke-Command -ComputerName $computers.name -ScriptBlock { try { Get-LocalGroupMember -Group administrators -ErrorAction Stop } catch { Get-LocalGroupMember -Group administrateurs } 
 } | Tee-Object -Variable a
 
+($a | Where-Object {
+    $_.ObjectClass -EQ "user" -and $_.name -notlike "*Administrator" -and $_.name -notlike "*Administrateur" -and $_.name -notlike "SPL\SASCCMCLIENTPUSH" 
+} | Sort-Object -Unique pscomputername) | ForEach-Object {
+    Get-ADComputer $_.PSComputerName | ForEach-Object {
+        $ext = switch-location -location $_.distinguishedName.substring($_.distinguishedName.indexof("OU=Computers,") + 13)
+        Add-ADGroupMember -Identity ($ext + " prv accounts") -Members $_.Distinguishedname -Verbose 
+    }
+}
+
 $kpextension = "BD", "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
 
 $g = $kpextension | ForEach-Object {
-(Get-ADGroup ($_ + " Server Admins" )).name 
-(Get-ADGroup ($_ + " Site Admins" )).name 
-(Get-ADGroup ($_ + " Site techs" )).name 
-(Get-ADGroup ($_ + " Service Accounts Computer" )).name
-    "Domain Admins"
-    "Migration Admins-KP"
-    "SPL\Domain Admins"
-    "KP EUD Allowed Local Admins"
-    "HO Server Admins"
-    "HO Service Accounts Computer"
-    "HO Site Admins"; "HO Site Techs"
-}
-
+    (Get-ADGroup ($_ + " Server Admins" )).name 
+    (Get-ADGroup ($_ + " Site Admins" )).name 
+    (Get-ADGroup ($_ + " Site techs" )).name 
+    (Get-ADGroup ($_ + " Service Accounts Computer" )).name
+} 
+     
+$g += ("Domain Admins", "Migration Admins-KP", "SPL\Domain Admins", "KP EUD Allowed Local Admins", "HO Server Admins", "HO Service Accounts Computer", "HO Site Admins", "HO Site Techs")
 
 function switch-location {
     param ($location) 
