@@ -9,8 +9,8 @@ $drives = $gpo.report.GPO | ForEach-Object {
     @{ name = "Path" ; e = { $_.properties.path } },
     @{ name = "Action" ; e = { $_.properties.action } },
     @{ name = "ThisDrive"; e = { $_.properties.ThisDrive } },
-    @{name = "Filtergroup" ; e = { $_.filters.filtergroup.bool } },
-    @{name = "Label" ; e = { $_.properties.label } },
+    @{ name = "Filtergroup" ; e = { $_.filters.filtergroup.bool } },
+    @{ name = "Label" ; e = { $_.properties.label } },
     @{ name = "Group"; e = { $_.filters.filtergroup.name } }
 }
 

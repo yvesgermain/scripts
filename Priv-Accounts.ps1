@@ -2,8 +2,9 @@ $computers = Get-ADOrganizationalUnit -Filter { name -eq "Computers" } | Where-O
     $_.Distinguishedname -like "ou=Computers,*,OU=Kruger Products,DC=kruger,DC=com" } | ForEach-Object {
     Get-ADComputer -SearchBase $_.distinguishedname -Filter { enabled -eq $true }  -Properties memberof | Where-Object { $_.distinguishedname -notlike "*OU=Production*" }
 }
+$computers = $computers | ForEach-Object -Parallel {$server = $_.name; if (Test-NetConnection -ComputerName $server -CommonTCPPort SMB) {$server}  }
 
-Invoke-Command -ComputerName $computers.name -ScriptBlock { try { Get-LocalGroupMember -Group administrators -ErrorAction Stop } catch { Get-LocalGroupMember -Group administrateurs } 
+Invoke-Command -ComputerName $computers -ScriptBlock { try { Get-LocalGroupMember -Group administrators -ErrorAction Stop } catch { Get-LocalGroupMember -Group administrateurs } 
 } | Tee-Object -Variable a
 
 ($a | Where-Object {
@@ -23,7 +24,7 @@ $g = $kpextension | ForEach-Object {
     (Get-ADGroup ($_ + " Site techs" )).name 
     (Get-ADGroup ($_ + " Service Accounts Computer" )).name
 } 
-     
+
 $g += ("Domain Admins", "Migration Admins-KP", "SPL\Domain Admins", "KP EUD Allowed Local Admins", "HO Server Admins", "HO Service Accounts Computer", "HO Site Admins", "HO Site Techs")
 
 function switch-location {
