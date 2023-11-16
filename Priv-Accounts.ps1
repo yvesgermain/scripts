@@ -2,7 +2,7 @@ $computers = Get-ADOrganizationalUnit -Filter { name -eq "Computers" } | Where-O
     $_.Distinguishedname -like "ou=Computers,*,OU=Kruger Products,DC=kruger,DC=com" } | ForEach-Object {
     Get-ADComputer -SearchBase $_.distinguishedname -Filter { enabled -eq $true }  -Properties memberof | Where-Object { $_.distinguishedname -notlike "*OU=Production*" }
 }
-$computers = $computers | ForEach-Object -Parallel {$server = $_.name; if (Test-NetConnection -ComputerName $server -CommonTCPPort SMB) {$server}  }
+$computers = $computers | ForEach-Object -Parallel {$server = $_.name; if (Test-NetConnection -ComputerName $server -CommonTCPPort WINRM) {$server}  }
 
 Invoke-Command -ComputerName $computers -ScriptBlock { try { Get-LocalGroupMember -Group administrators -ErrorAction Stop } catch { Get-LocalGroupMember -Group administrateurs } 
 } | Tee-Object -Variable a

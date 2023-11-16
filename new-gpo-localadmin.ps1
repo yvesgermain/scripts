@@ -54,7 +54,7 @@ Function Find-OU {
         "GR" { $Extension = "Richelieu"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SC" { $Extension = "Scarborough"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
         "KP" { $Extension = "Shared Services" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
-        "KP External" { $Extension = "External" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
+        # "KP External" { $Extension = "External" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "KP Shared" { $Extension = "Shared Services" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "PP" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
         "PP SS" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }

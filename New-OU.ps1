@@ -207,6 +207,15 @@ $parameters | ForEach-Object {
     Set-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou) -AclObject $acl
 }
 
+$parameters = @(@{OUs = "Computers"; Object = "Computer" })
+
+$parameters | ForEach-Object {
+    $acl = Get-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou)
+    $acl.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SID, @("CreateChild","DeleteChild"), "Allow", $guidmap[$_.object],"Descendents"  ))
+    Set-Acl -Path ("ad:ou=" + $_.OUs + "," + $ou) -AclObject $acl
+}
+
+
 # Modify members in Groups OU
 foreach ($GroupOu in "Distribution", "GPO" , "Printers") {
     $acl = Get-Acl -Path ("ad:ou=$GroupOU,ou=groups," + $ou)
