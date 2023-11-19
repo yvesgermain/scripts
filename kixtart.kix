@@ -1,0 +1,188 @@
+;-----------------------------------------------
+; Abort logon script if on a Server
+;-----------------------------------------------
+
+If InStr(@PRODUCTTYPE,"Server") Or InStr(@PRODUCTTYPE,"Domain Controller")
+	;messagebox ("Server OS Detected - Stopping Script", "Kixtart Message", 16)
+	goto LOGIN_END
+endif
+
+;-----------------------------------------------
+; Map G Drive per Division
+;-----------------------------------------------
+
+Function getUserDN()
+	Dim $objTrans
+
+ 	$username=@ldomain + "\"+ @userid
+
+ 	$objTrans = CreateObject("NameTranslate")
+ 	If @error
+		exit @error
+ 	Else
+ 		$objTrans.Init(3, "")
+ 		$objTrans.Set(3,$username)
+ 		$getUserDN = $objTrans.Get(1)
+ 		If @error
+			exit @error
+		Endif
+	Endif
+EndFunction
+
+Function AddDisk ($Letter, $ShareName, $ServerName )
+	$Disk = $Letter + ":"
+	USE $Disk /DELETE /PERSISTENT
+	USE $Disk  "\\" + $Servername + "\" + $ShareName /PERSISTENT
+EndFunction
+;---------------------------------------------------
+
+
+$UserDN=getUserDN()
+
+Select
+Case Instr($UserDN,"OU=Energy")
+	AddDisk("G", "GROUPS\NRG", "kruger.com")
+    AddDisk("K", "GROUPS", "kruger.com")
+Case Instr($UserDN,"OU=Head Office")
+	AddDisk("G", "GROUPS\CRP", "kruger.com")
+    AddDisk("K", "GROUPS", "kruger.com")
+;Case Instr($UserDN,"OU=Woodlands")
+;	AddDisk("P", "GROUPS\WDS", "kruger.com")
+;Case 1
+;	AddDisk("G", "GROUPS\CRP", "kruger.com")
+EndSelect
+
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Default Drive Mapping
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;AddDisk("K", "GROUPS", "kruger.com")
+
+If INGROUP ( "HOGIBEN" ) > 0
+	AddDisk("P", "Apps\CRP\tpfc", "kruger.com")
+EndIf
+
+;If INGROUP ( "HOGINRG" ) > 0
+;	AddDisk("Q", "Groups\NRG\Archives", "kruger.com")
+;EndIf
+
+
+;-------------------------------------------------------------------------
+;    Outlook2003 FreeBusy Fix
+;-------------------------------------------------------------------------
+
+;$fbusy = ReadValue("HKEY_CURRENT_USER\Environment","fbusy")
+;if  ( $fbusy ) <> "1"
+;		RUN "C:\Program Files\Microsoft Office\Office11\outlook.exe /cleanfreebusy"
+;                writeValue("HKEY_CURRENT_USER\Environment", "fbusy", "1", "REG_SZ")
+;endif
+
+
+;-------------------------------------------------
+; Abort Printer Mappings if Ras/Vpn connection
+;-------------------------------------------------
+
+;$RAS = SUBSTR(@IPADDRESS0,1,7)
+;if ( $RAS = " 10.  0" or $RAS = " 10. 52" )
+;  goto PRINTER_END	
+;endif
+
+
+;------------------------------------------------------
+;   Kruger Wallpaper
+;-------------------------------------------------------
+
+;$done = ReadValue("HKEY_CURRENT_USER\Environment","Wallpaper")
+
+;if  ( $done ) <> "1"
+;	writeValue("HKEY_CURRENT_USER\Control Panel\Desktop", "TileWallpaper", "0", "REG_SZ")
+;	writeValue("HKEY_CURRENT_USER\Control Panel\Desktop", "WallpaperStyle", "2", "REG_SZ")
+;        COPY @LSERVER + "\SYSVOL\kruger.com\scripts\HO\kruger.bmp" "%USERPROFILE%\Local Settings\Temp\"
+;	setwallpaper("%USERPROFILE%\Local Settings\Temp\kruger.bmp",1)	
+;        writeValue("HKEY_CURRENT_USER\Environment", "Wallpaper", "1", "REG_SZ")
+;endif
+
+
+;-------------------------------------------------
+; Deletes all mapped printers
+;-------------------------------------------------
+
+;   DELTREE ("HKEY_CURRENT_USER\Printers\Connections\")
+
+;Function DelPrinter ( $PrinterName, $ServerName )
+;	If KeyExist("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+;		If DELPRINTERCONNECTION("\\" +$ServerName + "\" + $PrinterName) = 0
+;			? " Queuename: " $PrinterName ", removing..."
+ ;       	EndIf
+;		Sleep 1
+;		If KeyExist("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+	;		DelTree("HKCU\Printers\Connections\,,"+$ServerName + ","+$PrinterName+"\")
+	;		Sleep 1
+;		EndIf
+;	EndIf
+;EndFunction
+
+
+;-------------------------------------------------
+; Printer connections by Group Membership
+;-------------------------------------------------
+
+;$sADsPath = "LDAP://OU=Printers,OU=Groups,OU=Head Office,DC=kruger,DC=com"
+;$objDomain = GetObject($sADsPath)
+
+;For Each $objContainer in $objDomain
+ ;   $GroupName = substr($objContainer.Name,4)
+
+
+;Remove printers on hosvps01
+ ;   if substr($GroupName,4,1) = "_"
+ ;         $tempGroup = $GroupName
+ ;         $GroupName2 = left($tempGroup,3) + substr($tempGroup,5)
+ ;   endif
+ ;   if right($GroupName2,3) <> "_DF"
+ ;   	DelPrinter ($GroupName2,"hosvps01")
+;    endif
+
+
+ ;   if ingroup($GroupName)
+ ;      ? $GroupName ": MEMBER"
+ ;      $status = ""
+    
+       ; Correct for groupnames with underscores in the 4th character - i.e. hop_queuename
+ ;      if substr($GroupName,4,1) = "_"
+ ;         $tempGroup = $GroupName
+;          $GroupName = left($tempGroup,3) + substr($tempGroup,5)
+ ;         " corrected to: " $GroupName
+ ;      endif
+       
+  ;     if right($GroupName,3) = "_DF"
+  ;        $QueueName = "\\hosvps02\" + left($GroupName,len($GroupName)-3)
+  ;        ? " Queuename: " $QueueName ", adding..."
+  ;        $status = addprinterconnection ($QueueName)
+   ;       " Setting as Default..."
+   ;       $status = setdefaultprinter ($QueueName)
+   ;       " Done."
+   ;    else
+   ;       $QueueName = "\\hosvps02\" + $GroupName
+   ;       ? " Queuename: " $QueueName ", adding..."
+   ;       $status = addprinterconnection ($QueueName)
+   ;       " Done."
+   ;    endif
+   ; endif
+;Next
+
+;cleanup
+;$objDomain = 0
+
+;:PRINTER_END
+
+
+;------------------------------------------------
+; C2C PST Manager
+;------------------------------------------------
+;run "\\HosvAdmin.ho.kruger.com\PSTManager\PSTManagerClient.exe -server http://HosvAdmin.ho.kruger.com -uncoupled_file \\HosvAdmin.ho.kruger.com\PSTManager\Paths.txt"
+
+:LOGIN_END
+EXIT

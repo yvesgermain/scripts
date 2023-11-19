@@ -61,7 +61,7 @@ function Convert-kix2drive {
                 @{name = "Group"; e = { $group } },
                 @{name = "OU"; e = { $OU } },
                 @{name = "Path" ; e = { $Folder.replace('"', "") } },
-                @{name = "Action" ; e = {""}}
+                @{name = "Action" ; e = { "" } }
                 if ($letter) { Remove-Variable letter }
                 If ($folder) { Remove-Variable folder }
                 if ($group) { Remove-Variable group }
@@ -100,7 +100,7 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
                 @{name = "Password"; e = { $pwd.replace('/password:', "") } },
                 @{name = "Option1"; e = { $option1.trim() } },
                 @{name = "Option2"; e = { $option2 } },
-                @{name = "Action" ; e = {""}}
+                @{name = "Action" ; e = { "" } }
                 if ($letter) { Remove-Variable letter }
                 If ($folder) { Remove-Variable folder }
                 if ($pwd) { Remove-Variable pwd }
@@ -171,7 +171,7 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
 $tr | Format-Table -AutoSize
 
 $CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
+    -not [String]::IsNullOrWhiteSpace($_.group.OU) -and $_ -notlike "*;*" } | ForEach-Object {
     $case = ""
     if ($_ -match "use ") { $letter, $path = $_.replace('"', "").split(":"); $letter = $letter.replace("use " , "").trim() }
     if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }
@@ -183,34 +183,43 @@ $CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
         @{name = "OrgUnit" ; e = { "" } },
         @{name = "Filtergroup" ; e = { "" } },
         @{name = "Label" ; e = { "" } },
-        @{name = "Action" ; e = {""}}
+        @{name = "Action" ; e = { "" } }
+        if ($letter) { Remove-Variable letter }
+        If ($folder) { Remove-Variable folder }
+        if ($pwd) { Remove-Variable pwd }
+        if ($user) { Remove-Variable user }
+        if ($option1) { Remove-Variable Option1 }
+        if ($OPtion2) { Remove-Variable option2 }
+        if ($group) { Remove-Variable group }
+        if ($path) { Remove-Variable path }
+        if ($case) { Remove-Variable case }
     }
     $oldIsMember = $isMember
 }
 
-$ho = convert-kix2Drive \\kruger.com\NETLOGON\ho\kixtart.kix
+$ho = convert-kix2Drive c:\scripts\kixtart.kix
 
-$LS = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_ls.kix
+$LS = convert-kix2Drive c:\scripts\kkLogin_ls.kix
 
-$PD = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_pd.kix
+$PD = convert-kix2Drive c:\scripts\kkLogin_pd.kix
 
-$PB = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_pb.kix
+$PB = convert-kix2Drive c:\scripts\kkLogin_pb.kix
 
-$ET = convert-kix2Drive \\kruger.com\NETLOGON\kk\kkLogin_et.kix
+$ET = convert-kix2Drive c:\scripts\kkLogin_et.kix
 
-$TU = convert-kix2Drive \\kruger.com\NETLOGON\kk\kklogin_TU.kix
+$TU = convert-kix2Drive c:\scripts\kklogin_TU.kix
 
 $ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter, Path, @{name = "OrgUnit" ; e = { "" } }, OU, @{name = "Filtergroup" ; e = { "" } }, @{name = "Label" ; e = { "" } }, Group | Sort-Object -Unique -Property Letter, Path, OU, Group | Format-Table
 
-$ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter,
+$xx = $ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter,
 Path,
 @{name = "OrgUnit" ; e = { "" } },
 OU,
 @{name = "Filtergroup" ; e = { "" } },
 @{name = "Label" ; e = { "" } },
 Group | Sort-Object -Unique -Property Letter, Path, OU, Group | Group-Object Letter, Path | ForEach-Object { if ($_.count -gt 1) {
-        if ($_.Group.ou -notlike "") { $ou = [string]::join(",", $_.group.OU) } else { $ou = "" }
-        if ($_.Group.group -notlike "") { $group = [string]::join(",", $_.group.group) } else { $group = "" }
+        if ($_.Group.ou -notlike "") { $ou = $_.group.OU } else { $ou = "" }
+        if ($_.Group.group -notlike "") { $group = $_.group.group | Sort-Object -Property Group -unique } else { $group = "" }
         $letter = $_.group.letter | Sort-Object -Unique
         $path = $_.group.path | Sort-Object -Unique
         $_ | Select-Object @{name = "Letter"; e = { $letter } },
@@ -220,8 +229,29 @@ Group | Sort-Object -Unique -Property Letter, Path, OU, Group | Group-Object Let
         @{name = "Action"; e = { "" } } | Sort-Object -Unique Letter, OU, Path
     }
     else { $_ | Select-Object -ExpandProperty Group }
-} | Export-Csv C:\temp\drives2gpo.csv -Delimiter "," -Encoding utf8
+} 
 
+$xx | Where-Object { $_.ou } | ForEach-Object {
+    $ous = $_.ou.split(",") | ForEach-Object {
+        $ou = $_.replace("OU=", "")
+        Try { (Get-ADOrganizationalUnit -Filter { Name -like $OU }).distinguishedname } catch {} } 
+    $_.ou = $ous
+}
+
+$xx | Where-Object { -not [String]::IsNullOrWhiteSpace($_.group) } | ForEach-Object {
+    $Groups = $_.Group.split(",")
+    $_.Group = $Groups
+}
+
+
+# $xx | Export-Csv C:\temp\drives2gpo.csv -Delimiter "," -Encoding utf8
+# $xx | Where-Object { $_.ou } | ForEach-Object { $orgs = $_.ou.split(";"); $_.ou = $orgs }
+# $xx | Where-Object { $_.ou } | ForEach-Object {
+#     $ous = $_.ou.split(",") | ForEach-Object {
+#         $ou = $_.replace("OU=", "")
+#         Try { (Get-ADOrganizationalUnit -Filter { Name -like $OU }).distinguishedname } catch {} } 
+#     $orgs = [string]::join(";", $ous) ; $_.ou = $orgs
+# }
 
 $GPO = New-Object -TypeName XML
 $GPO.load("c:\temp\gporeport-2023-11-10.xml")
@@ -233,7 +263,7 @@ $drives = $gpo.report.GPO | Where-Object { $_.name -notlike "Test - DriveMap - Y
     @{ name = "ThisDrive"; e = { $_.properties.ThisDrive } },
     @{ name = "Filtergroup" ; e = { $_.filters.filtergroup.bool } },
     @{ name = "Label" ; e = { $_.properties.label } },
-    @{ name = "Group"; e = { $_.filters.filtergroup.name.replace("KRUGERINC\","") } },
+    @{ name = "Group"; e = { $_.filters.filtergroup.name.replace("KRUGERINC\", "") } },
     @{ name = "OrgUnit" ; e = { $_.filters.FilterOrgUnit.bool } },
     @{ name = "OU"; e = { [string]::join(",", $_.filters.FilterOrgUnit.name) } }
 }
@@ -248,7 +278,7 @@ $spllogon | Where-Object { $_.path -notlike "* & UserName & $" }  | Group-Object
     @{name = "Filtergroup" ; e = { "" } },
     @{name = "Label" ; e = { "" } },
     @{name = "group" ; e = { [string]::join(",", $_.group.group.trim()) } },
-    @{name = "Action" ; e = {""}}
+    @{name = "Action" ; e = { "" } }
 }  | Export-Csv -Path  "c:\temp\drives2gpo.csv" -Delimiter "," -Encoding utf8 -Append
 
 ####################  PRINTER STUFF ********************

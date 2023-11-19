@@ -1,8 +1,8 @@
 # $FilePath = "c:\temp\gporeport-" + (Get-Date -f yyyy-MM-dd) + ".xml"
 # Get-GPOReport -all -ReportType Xml -Path $FilePath
 $GPO = New-Object -TypeName XML
-$GPO.load("c:\temp\gporeport-2023-11-10.xml")
-$drives = $gpo.report.GPO | Where-Object { $_.name -notlike "Test - DriveMap - YG" -and $_.name -notlike "SH Drives Mapping - TEST" } |  ForEach-Object {
+$GPO.load("c:\temp\gporeport-2023-11-19.xml")
+$GPOdrives = $gpo.report.GPO | Where-Object { $_.name -notlike "Test - DriveMap - YG" -and $_.name -notlike "SH Drives Mapping - TEST" } |  ForEach-Object {
     $name = $_.name
     $_.User.ExtensionData.extension.DriveMapSettings.drive | Select-Object @{ name = "GPO" ; e = { $name } },
     @{ name = "Letter" ; e = { $_.properties.Letter } },
@@ -16,11 +16,13 @@ $drives = $gpo.report.GPO | Where-Object { $_.name -notlike "Test - DriveMap - Y
     @{ name = "OU"; e = { $_.filters.FilterOrgUnit.name } }
 } 
 
-$drives | Export-Csv -Path C:\temp\drives2gpo.csv -Encoding utf8 -Delimiter "," -Append
+# $drives | Export-Csv -Path C:\temp\drives2gpo.csv -Encoding utf8 -Delimiter "," -Append
+#  
+# $drives = Import-Csv -Path C:\temp\drives2gpo.csv -Delimiter "," -Encoding utf8
+# $drives | Where-Object { $_.group -like "*,*" } | ForEach-Object { $_.group = $_.group.split(",") }
+# $drives | Where-Object { $_.OU -like "*,*" } | ForEach-Object { $_.OU = $_.OU.split(",") }
 
-$drives = Import-Csv -Path C:\temp\drives2gpo.csv -Delimiter "," -Encoding utf8
-$drives | Where-Object { $_.group -like "*,*" } | ForEach-Object { $_.group = $_.group.split(",") }
-$drives | Where-Object { $_.OU -like "*,*" } | ForEach-Object { $_.OU = $_.OU.split(",") }
+$gpodrives + $xx | Where-Object {$_.Path -notlike "" -and $_.path -notlike '*%username%' } 
 
 "New GPO Drive Maps"
 
@@ -50,20 +52,20 @@ foreach ( $Drive in $Drives ) {
             $FilterName = $Group.replace("KRUGERINC\", "")
             if ($int -lt 1) {
                 $NewEntry.filters.FilterGroup.name = $group
-                $NewEntry.filters.FilterGroup.sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
+                $NewEntry.filters.FilterGroup.sid = ( Get-ADGroup -identity $FilterName  ).sid.value
                 $int++
             }
             else {
                 $clone = $Admin.drives.drive.filters.filtergroup[0].clone()
                 $newentry.filters.AppendChild($clone)
                 $NewEntry.filters.FilterGroup[$int].name = $group
-                $NewEntry.filters.FilterGroup[$int].sid = ( Get-ADGroup -Filter { name -like $FilterName } ).sid.value
+                $NewEntry.filters.FilterGroup[$int].sid = ( Get-ADGroup -Identity $FilterName ).sid.value
                 $NewEntry.filters.FilterGroup[$int].bool = "OR"
             }
         }
     }
     if ($Drive.OU -notlike "") {
-        $drive | ft
+        # $drive | ft
         $NewEntry = $Admin.Drives.Drive[1].Clone()
         # $clone = $NewEntry.Properties.Members.member[1].clone()
         # $NewEntry.Properties.Members.AppendChild($clone)
@@ -74,10 +76,10 @@ foreach ( $Drive in $Drives ) {
         $NewEntry.SetAttribute("disabled", 1)
         $int = 0
         foreach ( $OU in $drive.OU) {
-            $Org = $OU.replace("OU=", "")
-            $org
+            # $Org = $OU.replace("OU=", "")
+            # $org
             if ($int -lt 1) {
-                $FilterOrg = Get-ADOrganizationalUnit -Filter { name -eq $Org }
+                $FilterOrg = Get-ADOrganizationalUnit -identity $OU
                 $NewEntry.filters.FilterOrgUnit.name = $FilterOrg.DistinguishedName
                 $int++
             }
@@ -85,7 +87,7 @@ foreach ( $Drive in $Drives ) {
                 if ($int -lt $drive.OU.count) {
                     $clone = $Admin.drives.drive[1].filters.FilterOrgUnit.clone()
                     $newentry.filters.AppendChild($clone)
-                    $FilterOrg = Get-ADOrganizationalUnit -Filter { name -eq $Org }
+                    $FilterOrg = Get-ADOrganizationalUnit -identity $OU
                     $NewEntry.filters.FilterOrgUnit[$int].name = $FilterOrg.DistinguishedName
                     $NewEntry.filters.FilterOrgUnit[$int].bool = "OR"
                     $int++
@@ -93,11 +95,14 @@ foreach ( $Drive in $Drives ) {
             }
         }
     }
-    $newentry.properties.action = $drive.action
+    if ($null -eq $drive.action ) {$action = "U"} else {$action = $drive.action}
+    $newentry.properties.action = $action
+    $newentry.name = ($drive.letter + ":")
+    $newentry.status = ($drive.letter + ":")
     $newentry.properties.letter = $drive.letter
     $newentry.properties.path = $drive.Path
     $newentry.properties.persistent = "1"
-    $newentry.properties.useLetter = "1"
+    $newentry.properties.useletter = "1"
     $newentry.properties.label = $Drive.label
     $Admin.DocumentElement.AppendChild($NewEntry)
 }

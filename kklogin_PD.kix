@@ -1,0 +1,475 @@
+; kklogin.kix
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Domain : KRUGERINC
+;  By : BENJAMIN LAREAU
+;  Date : 2010/10/22
+;  Modifi� : 2019/06/10
+;  By : Nicholas Dor�
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  DISPLAY SOME VARIABLE
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+SetConsole ("MAXIMIZE")
+CLS
+
+Color w+/n
+? "********************************************************************************"
+? "*                             KRUGER INC.                                      *" 
+? "*                          Bonjour / Welcome                                   *" 
+? "********************************************************************************"
+
+Color g+/n
+    
+AT (6,1)  "Nom complet / Full name         : "
+AT (7,1)  "Nom d'utilisateur / Userid      : "
+AT (8,1)  "Ordinateur / Workstation        : "
+AT (9,1)  "Domaine / Domain                : "
+AT (10,1) "Script:                         : "
+
+Color y+/n
+AT (6,35)  @fullname              
+AT (7,35)  @userid
+AT (8,35)  @wksta
+AT (9,35) @domain
+AT (10,35) @scriptname
+
+AT (12,1) ("Votre mot de passe expire dans "+(@MAXPWAGE-@PWAGE)+" jours")
+AT (13,1) ("      Your password will expire in "+(@MAXPWAGE-@PWAGE)+" days")
+AT (15,1) "Merci de patienter."
+AT (16,1) "      Thanks for waiting..."
+
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  MAP GENERAL DRIVES AND OTHER TASK BY SPECIFIC OU
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Function getUserDN()
+	Dim $objTrans
+
+ 	$username=@ldomain + "\"+ @userid
+
+ 	$objTrans = CreateObject("NameTranslate")
+ 	If @error
+		exit @error
+ 	Else
+ 		$objTrans.Init(3, "")
+ 		$objTrans.Set(3,$username)
+ 		$getUserDN = $objTrans.Get(1)
+ 		If @error
+			exit @error
+		Endif
+	Endif
+EndFunction
+
+Function AddDisk ($Letter, $ShareName, $ServerName )
+	$Disk = $Letter + ":"
+	USE $Disk /DELETE /PERSISTENT
+	USE $Disk  "\\" + $Servername + "\" + $ShareName /PERSISTENT
+ 	If @ERROR = 0
+		Color g+/n
+		? "Disque connect� / Disk mapped --> "+ $Letter+ ": = \\" +$ServerName+ "\"+ $ShareName
+ 	Else
+		Color r+/n
+		? "Impossible de connecter le disque / Problem mapping disk --> "+ $Letter+ ": = \\" +$ServerName+ "\"+ $ShareName
+	EndIf
+	Color w+/n
+EndFunction
+
+Color w+/n
+? " "
+? "********************************************************************************"
+? "*             Connexion des disques r�seaux / Mapping network drive            *"
+? "********************************************************************************"
+? " "
+
+$UserDN=getUserDN()
+
+Select
+;Case Instr($UserDN,"OU=Lasalle,OU=Packaging")
+;	If Ingroup ("LsShareRestrictedMapping")
+;		USE P: /DELETE /PERSISTENT
+;	Else
+;		AddDisk("P", "Groups\KKP\LS\PUBLIC", "kruger.com")
+;	EndIf
+;
+;	AddDisk("O", "Groups\KKP\LS\Artwork", "kruger.com")
+;	AddDisk("Q", "Groups\KKP\LS\ProductionOrders", "kruger.com")
+;
+;	If Ingroup ("LsArtiosCAD")
+;		AddDisk("H", "Groups\KKP\LS", "kruger.com")
+;		AddDisk("G", "APPS", "kksvlsdesign01.kruger.com")
+;		AddDisk("L", "ARTSERVCAD", "kksvlsdesign01.kruger.com")
+;	Else
+;		If Ingroup ("LsShareRestrictedMapping")
+;			USE G: /DELETE /PERSISTENT
+;		Else	
+;			AddDisk("G", "Groups\KKP\LS", "kruger.com")
+;		EndIf
+;	EndIf
+;
+;;*******Change Intranet Lasalle******
+;	Color n/n
+;	$homepage = ReadValue("HKCU\Software\Microsoft\Internet Explorer\Main","Start Page")
+;
+;	If INSTR($homepage,"lsswebserver")
+;		WriteValue("HKCU\Software\Microsoft\Internet Explorer\Main","Start Page","http://i.kruger.com/kkp/las/","REG_SZ")
+;	EndIf
+;	Color w+/n
+;	
+;
+;Case Instr($UserDN,"OU=Paperboard,OU=Packaging")
+;	AddDisk("G", "Groups\KKP\PB", "kruger.com")	
+;	AddDisk("P", "Apps\KKP_PB", "kruger.com")	
+;	AddDisk("Z", "Groups\KKP\PB\public", "kruger.com")	
+;	AddDisk("L", "Apps\KKP_PB", "kruger.com")	
+;	AddDisk("M", "Apps\KKP_PB", "kruger.com")		
+;	
+;	IF Ingroup ("PbDeptHr")
+;		AddDisk("Y", "Groups\KKP\PB\Ressources Humaines", "kruger.com")
+;	ENDIF
+;
+;
+;	IF Ingroup ("PbShareRfactionRW") or Ingroup ("PbShareRfactionRO")
+;		AddDisk("R", "Groups\KKP\PB\RFaction", "kruger.com")
+;	ENDIF
+;
+;	IF Ingroup ("PbShareLs")
+;		AddDisk("X", "Groups\KKP\LS\PUBLIC", "kruger.com")
+;		AddDisk("W", "Groups\KKP\LS", "kruger.com")
+;	ENDIF
+; 
+;	IF Ingroup ("PbShareComptabilite-RhRW")
+;		AddDisk("J", "Groups\KKP\PB\Comptabilite-RH", "kruger.com")
+;
+;	ENDIF	
+;
+;	IF Ingroup ("PbShareTappiRO")
+;		AddDisk("T", "Groups\KKP\PB\tappi", "kruger.com")
+;
+;	ENDIF
+
+
+Case Instr($UserDN,"OU=Pedigree,OU=Packaging")
+	
+
+	AddDisk("P", "Groups\KKP\BA\public", "kruger.com")
+	AddDisk("O", "Groups\KKP\LS\Artwork", "kruger.com")
+	AddDisk("Q", "Groups\KKP\LS\ProductionOrders", "kruger.com")
+
+	If Ingroup ("PdArtiosCAD")
+		AddDisk("H", "Groups\KKP\BA", "kruger.com")
+		AddDisk("G", "DESIGN GROUP FOLDER", "kksvbadesign01.kruger.com")
+        AddDisk("K", "ARTIOS", "kksvbadesign01.kruger.com")
+		AddDisk("L", "ARTIOSDATA", "kksvbadesign01.kruger.com")
+                
+	Else
+		AddDisk("G", "Groups\KKP\BA", "kruger.com")
+		
+	EndIf
+
+;	If InGroup ("PdDeptAccounting")
+;		AddDisk("R", "export", "rexdale")
+;		AddDisk("V", "phdat_b", "rexdale")
+;	EndIf
+
+	If Ingroup ("PdShareLs")
+		AddDisk("S", "Groups\KKP\LS", "kruger.com")
+		AddDisk("T", "Groups\KKP\LS\Public", "kruger.com")
+	EndIf
+
+	
+;Case INSTR($UserDN,"OU=Turcal,OU=Recycling")
+;	
+;
+;	AddDisk("Z", "Groups\RCY\TU\tu_public", "kruger.com")
+;	AddDisk("P", "Apps\KKP_PB", "kruger.com")
+;	AddDisk("G", "Groups\RCY\TU", "kruger.com")
+;
+;
+;
+;
+;Case 1
+;	? "Organisational Unit=Unknown"
+;	? " " 	
+EndSelect
+
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  MAP GENERAL DRIVES ALL UNIT
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+IF Ingroup ("pbshareoutlook")
+		AddDisk("B", @userid+"$", "pbsspc01.pb.kruger.com")
+
+	ENDIF
+IF Ingroup ("tushareoutlook")
+		AddDisk("B", @userid+"$", "tusvpst02.pb.kruger.com")
+
+	ENDIF
+
+IF Ingroup ("lsshareoutlook")
+		AddDisk("B", @userid+"$", "LSSVPST01.kruger.com")
+
+	ENDIF
+
+IF Ingroup ("bashareoutlook")
+		AddDisk("N", @userid+"$", "BASVPST01.kruger.com")
+
+	ENDIF
+
+;IF Ingroup ("KKShareDesignRW")
+;		AddDisk("Y", "Groups\KKP\LS\Design-Tech Services", "kruger.com")
+;
+;	ENDIF
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Share IT Programs
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+If Ingroup ("LsShareITRW")
+	AddDisk("I", "support$\kkp", "kruger.com")	
+EndIf
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Share Kronos Interfaces
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;If Ingroup ("LsShareInterfacesKronos")
+;	AddDisk("Y", "InterfacesKronos", "lsskronos01")
+;EndIf
+
+
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  CANCEL MAPPING PRINTERS If SERVER BUT NOT TERMINAL SERVER
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;If (SUBSTR (@wksta, 3, 1) = "S" OR SUBSTR(@wksta, 3, 1) = "V") AND (SUBSTR (@wksta, 4, 2) <> "TS" AND SUBSTR (@wksta, 1, 8) <> "LSSVRDSH" AND SUBSTR (@wksta, 1, 8) = "LSSRDFARM" )
+;	Color y+/n
+;	? " L'ajout d'imprimante n'est pas authoris� sur le serveur " + @wksta
+;	? " Adding printer is not authorized on server " + @wksta
+;	Color w+/n
+;	goto PRINTER_END
+;EndIf
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Delete Java Cache
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+DEL "c:\Documents and Settings\"+@userid+"\Application Data\Sun\Java\Deployment\cache\*.*"  /s /f
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Add Application Shortcut on Terminal Server 2008RR2
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+If InGroup("KK Admins")
+	goto SHORTCUT_END
+EndIf
+
+Function AddShortcut ( $GroupName, $LinkName, $LinkFolder, $ProgramName)
+	If $LinkFolder<>""
+			$LinkFolder="\"+$Linkfolder
+	EndIf
+	If InGroup ($GroupName)
+		$src="C:\Shortcut\"+ $LinkFolder +"\"+ $LinkName
+		$dest= "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\"+ $LinkFolder +"\"
+		COPY $src $dest
+		COPY $src "C:\Users\%USERNAME%\Desktop\"
+		Color g+/n
+		? "Raccouci ajout� / Shortcut added --> "+ $ProgramName	
+	Else
+		;? "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs"+ $LinkFolder +"\"+ $LinkName
+		If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs"+ $LinkFolder +"\"+ $LinkName) = 1
+			DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs"+ $LinkFolder +"\"+ $LinkName
+			DEL "C:\Users\%USERNAME%\Desktop\"+ $LinkName
+			Color r+/n
+			? "Raccouci supprim� / Shortcut Removed --> "+ $ProgramName
+		EndIf
+        EndIf
+	Color w+/n
+EndFunction
+
+
+If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH"  OR SUBSTR (@wksta, 1, 8) = "PDSVRDSH" 
+	Color w+/n
+	? " "
+	? "********************************************************************************"
+	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+	? "********************************************************************************"
+	? " "
+	
+	AddShortcut("KkTsCitrixMetaFrame", "Program Neighborhood Agent.lnk", "Citrix", "Citrix Client")
+	AddShortcut("KkTsEspCheckPriceLs", "Esp Check Price Lasalle.lnk", "Esp Check Price", "Esp Check Price")
+	AddShortcut("KkTsEspCheckPricePd", "Esp Check Price Brampton.lnk", "Esp Check Price", "Esp Check Price")
+	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Word 2007.lnk", "Microsoft Office", "Word")
+	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Excel 2007.lnk", "Microsoft Office", "Excel")
+	AddShortcut("KkTsMsOfficeStd", "Microsoft Office PowerPoint 2007.lnk", "Microsoft Office", "PowerPoint")
+	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Outlook 2007.lnk", "Microsoft Office", "Outlook")
+	AddShortcut("KkTsMsOfficePro", "Microsoft Office Access 2007.lnk", "Microsoft Office", "Access")
+	AddShortcut("KkTsMsVisio", "Microsoft Office Visio 2007.lnk", "Microsoft Office", "Visio")
+	AddShortcut("KkTsKiwiplanMapLs", "Kiwiplan MAP - Lasalle.r2w", "Kiwiplan", "Kiwiplan MAP Lasalle")
+	AddShortcut("KkTsKiwiplanMapPd", "Kiwiplan MAP - Brampton.r2w", "Kiwiplan", "Kiwiplan MAP Brampton")
+	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
+	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
+	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
+	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
+	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
+	AddShortcut("KkTsCalculus", "Exacc 2000.lnk", "Exacc 2000", "Exacc 2000 - Calulus")
+	AddShortcut("KkTsExportRiteLite", "ExportRite Lite.lnk", "ExportRiteLite 3.0", "ExportRiteLite")
+	AddShortcut("KkTsConvert", "convert.exe", "", "Convert")
+	AddShortcut("KkTsHpuxLs", "HPUX - Lasalle.r2w", "", "HPUX Lasalle")
+	AddShortcut("KkTsHpuxPd", "HPUX - Brampton.r2w", "", "HPUX Brampton")
+	AddShortcut("KkTsRydeSmart", "RydeSmart eClient.lnk", "RydeSmart", "RydeSmart eClient")
+	AddShortcut("KkTsRydeSmart", "RydeSmart Reporter.lnk", "RydeSmart", "RydeSmart Reporter")
+	AddShortcut("KkTsOracleUPK", "UPK Developer.lnk", "User Productivity Kit", "Oracle UPK")
+        	;AddShortcut("KkTsShellGLE", "ELM-GL�.lnk", "Shell Canada Product Software", "Shell GLE")
+		;AddShortcut("KkTsShellGLE", "LubePlanner.lnk", "Shell Canada Product Software", "Shell LubePlanner")
+;	AddShortcut("KkTsCiscoCallAttendant", "Cisco CallManager Attendant Console.lnk", "Cisco Phone", "Cisco CallManager Attendant Console")
+	AddShortcut("KkTsAnalyseRisques", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")
+	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
+	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
+	AddShortcut("KKAppKKP_MAPFTPTool", "KKP_MAPFTPTool.appref-ms", "KKP", "KKP_MAPFTPTool")
+	AddShortcut("KkTsSnipTool", "Snipping Tool.lnk", "", "Snipping Tool")
+	;AddShortcut("", "", "", "")
+
+
+	
+EndIf
+
+
+If  SUBSTR (@wksta, 1, 8) = "KKSVRDSH"
+	Color w+/n
+	? " "
+	? "********************************************************************************"
+	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+	? "********************************************************************************"
+	? " "
+	
+	AddShortcut("KkTsMsOfficeStd", "Word 2016.lnk", "Microsoft Office", "Word 2016")
+	AddShortcut("KkTsMsOfficeStd", "Excel 2016.lnk", "Microsoft Office", "Excel 2016")
+	AddShortcut("KkTsMsOfficeStd", "PowerPoint 2016.lnk", "Microsoft Office", "PowerPoint 2016")
+	AddShortcut("KkTsMsOfficeStd", "Outlook 2016.lnk", "Microsoft Office", "Outlook 2016")
+	AddShortcut("KkTsKiwiplanMapLs", "Kiwi - Map - Lasalle.etx", "Kiwiplan", "Kiwiplan MAP Lasalle")
+	AddShortcut("KkTsKiwiplanMapPd", "Kiwi - Map - Brampton.etx", "Kiwiplan", "Kiwiplan MAP Brampton")
+	AddShortcut("KkTsKiwiplanQMSAdmin", "QMS.lnk", "Kiwiplan", "Kiwiplan QMS")
+	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
+	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
+	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
+	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Lasalle - Test.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle Test")
+	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
+	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
+	AddShortcut("KkTsConvert", "convert.exe", "", "Convert")
+	AddShortcut("LsDeptShipping", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")	
+	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
+	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
+	AddShortcut("KKAppKKP_MAPFTPTool", "KKP_MAPFTPTool.appref-ms", "KKP", "KKP_MAPFTPTool")
+	AddShortcut("KkTsSnipTool", "Snipping Tool.lnk", "", "Snipping Tool")
+
+;AddShortcut("", "", "", "")
+
+
+	
+EndIf
+
+
+If  SUBSTR (@wksta, 1, 10) = "KKSVSOLAGC"
+	Color w+/n
+	? " "
+	? "********************************************************************************"
+	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+	? "********************************************************************************"
+	? " "
+	
+	AddShortcut("PB_AGC4DMODULE_PARAMETERS_VIEW_ONLY", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+	AddShortcut("PB_AGC4DMODULE_Superviseur_Production", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+	AddShortcut("PB_AGC4DMODULE_Superviseur_Maintenance", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+;AddShortcut("", "", "", "")
+
+
+
+EndIf
+
+:SHORTCUT_END
+
+If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
+
+	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
+		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
+	EndIf
+EndIf
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Kruger Wallpaper
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If (InGroup ("LsKrugerWallpaper") OR InGroup ("PbKrugerWallpaper"))
+	Color n/n
+	writeValue("HKEY_CURRENT_USER\Control Panel\Desktop", "TileWallpaper", "0", "REG_SZ")
+	writeValue("HKEY_CURRENT_USER\Control Panel\Desktop", "WallpaperStyle", "2", "REG_SZ")
+	COPY @LSERVER + "\NETLOGON\KK\kruger.bmp" "%USERPROFILE%\Local Settings\Temp\"
+	setwallpaper("%USERPROFILE%\Local Settings\Temp\kruger.bmp",1)
+	Color w+/n
+EndIf
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  ORACLE CLIENT UPDATE TNSNAMES.ORA
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+If Ingroup ("PbOracleTNSNAMES")
+	RUN @LSERVER + "\NETLOGON\KK\kkoracletnsnames.exe"
+EndIf
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Update traq Manager
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If Exist ("C:\Program Files\Wrapmation\TRAQ Manager") = 1	
+	
+	RUN @LSERVER + "\NETLOGON\KK\TraqUpdate.exe"
+		Color g+/n
+		? "Mise � jour de TRAQ Manager / Updating TRAQ Manager"
+		Color w+/n
+
+else
+
+	endif
+
+
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;  Installation of SSRS Print Active X
+; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If (SUBSTR (@wksta, 3, 1) = "S" OR SUBSTR(@wksta, 3, 1) = "V") AND SUBSTR (@wksta, 4, 2) <> "TS"
+	Color y+/n
+	? " L'installation d'un ActiveX n'est pas authoris� sur le serveur " + @wksta
+	? " Installing of ActiveX is not authorized on server " + @wksta
+	Color w+/n
+else
+	If Exist ("C:\Windows\Downloaded Program Files\rsclientprint.dll") = 0	
+	
+		RUN @LSERVER + "\NETLOGON\KK\ssrsprint.exe"
+
+	else
+
+	endif
+
+endif
+
+; shell 'wscript.exe \\kruger.com\netlogon\kk\PassExpWrn.vbs'
+
+sleep 10
+
+
+
+EXIT
