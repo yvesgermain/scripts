@@ -161,10 +161,15 @@ Case Instr($UserDN,"OU=Pedigree,OU=Packaging")
 
 	If Ingroup ("PdArtiosCAD")
 		AddDisk("H", "Groups\KKP\BA", "kruger.com")
-		AddDisk("G", "DESIGN GROUP FOLDER", "kksvbadesign01.kruger.com")
+	EndIf	
+	If Ingroup ("PdArtiosCAD")		
         AddDisk("K", "ARTIOS", "kksvbadesign01.kruger.com")
+	EndIf	
+	If Ingroup ("PdArtiosCAD")
 		AddDisk("L", "ARTIOSDATA", "kksvbadesign01.kruger.com")
-                
+	EndIf	
+	If Ingroup ("PdArtiosCAD")
+		AddDisk("G", "DESIGN GROUP FOLDER", "kksvbadesign01.kruger.com")                
 	Else
 		AddDisk("G", "Groups\KKP\BA", "kruger.com")
 		

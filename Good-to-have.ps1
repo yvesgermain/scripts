@@ -1,5 +1,12 @@
+$dfs = @{} 
+Get-DfsnRoot -Domain kruger.com | ForEach-Object {
+    Get-DfsnFolder -Path ($_.path + "\*") | ForEach-Object { 
+        Get-DfsnFolderTarget -Path $_.path | Where-Object { $_.state -eq "Online" }
+    }
+} | ForEach-Object { $dfs[$_.TargetPath] = $_.Path }
+
 Remove-Variable case, oldcase, MapDrive, path, ismember
-$spllogon = Get-Content \\kruger.com\NETLOGON\spllogon.vbs | Where-Object {
+$spllogon = Get-Content C:\scripts\spllogon.vbs | Where-Object {
     $_ -notmatch "^'" -and ($_ -match "if isMember" -or $_ -match "MapDrive" -or $_ -match "case" -or $_ -match "End Select" )
 } | ForEach-Object {
     if ($_ -match "End Select") { Remove-Variable case, oldcase, MapDrive, path, ismember; }
@@ -15,6 +22,13 @@ $spllogon = Get-Content \\kruger.com\NETLOGON\spllogon.vbs | Where-Object {
     }
     $oldcase = $case; $oldIsMember = $isMember
 }
+
+# $spllogon | Where-Object { $_.path -notlike "*\ & UserName & $" } | ForEach-Object {
+#     $path = $_.path.replace(".kruger.com", "").tolower()  
+#     if ( $dfs[$path]) { 
+#         $_.path = $dfs[$path] 
+#     }
+# }
 
 function Convert-kix2drive {
     param($File)
@@ -35,7 +49,7 @@ function Convert-kix2drive {
                         $OU = ""
                     }
                     else {
-                        $ou = $_.split('"')[1].split(",")[0]
+                        $OU = $_.split('"')[1].split(",")[0]
                     }
                 }
             }
@@ -219,7 +233,7 @@ OU,
 @{name = "Label" ; e = { "" } },
 Group | Sort-Object -Unique -Property Letter, Path, OU, Group | Group-Object Letter, Path | ForEach-Object { if ($_.count -gt 1) {
         if ($_.Group.ou -notlike "") { $ou = $_.group.OU } else { $ou = "" }
-        if ($_.Group.group -notlike "") { $group = $_.group.group | Sort-Object -Property Group -unique } else { $group = "" }
+        if ($_.Group.group -notlike "") { $group = $_.group.group | Sort-Object -Property Group -Unique } else { $group = "" }
         $letter = $_.group.letter | Sort-Object -Unique
         $path = $_.group.path | Sort-Object -Unique
         $_ | Select-Object @{name = "Letter"; e = { $letter } },
@@ -242,7 +256,9 @@ $xx | Where-Object { -not [String]::IsNullOrWhiteSpace($_.group) } | ForEach-Obj
     $Groups = $_.Group.split(",")
     $_.Group = $Groups
 }
-
+$xx  | Where-Object {$_.group -like "" } | ForEach-Object {
+    $_.Group = $null
+}
 
 # $xx | Export-Csv C:\temp\drives2gpo.csv -Delimiter "," -Encoding utf8
 # $xx | Where-Object { $_.ou } | ForEach-Object { $orgs = $_.ou.split(";"); $_.ou = $orgs }

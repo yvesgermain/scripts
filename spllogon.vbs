@@ -12,7 +12,7 @@
 '	Version 1.1 to 1.x Updates for server consolidation projects
 '		1.1 [Carl Steele] Montreal mappings updated, G: mapping added
 '		1.2 [Carl Steele] Montreal S: removed, using G:
-'		1.3 [Carl Steele] Calgary G: \\kpsvwts02\calgrp changed to X:
+'		1.3 [Carl Steele] Calgary G: \\shsvfs01\calgrp changed to X:
 '		1.4 [Carl Steele] Lennoxville mappings updated, G: mapping added
 '     1.5 [Yves Germain] Cleanup of bad subnet 
 '
@@ -58,7 +58,7 @@ Loop
 Select Case network
 
 '    Case "199.175.174" '"Kruger Term Serv"  ' scrap YG
-'   If the login script is run from the terminal server, exit script. 
+'   If the login script is run from the terminal server, exit script. shsvfs01\\kruger.com\Public\KPI\CT
 '   A script local to the Term Server is run for these users called TSMapping.vbs
 '        wscript.quit  ' scrap YG
 
@@ -71,13 +71,13 @@ Select Case network
 '    Case "199.175.173" '"Annacis Island"    ' scrap YG
 '    Wscript.Echo "Mapping Annacis Island Drives..."  ' scrap YG
 '    MapDrive "H:","\\splnwfp\" & UserName & "$"  ' scrap YG
-'    MapDrive "P:","\\splnwfp\public"  ' scrap YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\NW"  ' scrap YG
     
 '   Case "192.6.1" '"Calgary"    ' scrap YG
 '   Wscript.Echo "Mapping Calgary Drives..."  ' scrap YG
-'   MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
-'   MapDrive "X:","\\kpsvwts02\calgrp"  ' scrap YG
-'   MapDrive "P:","\\kpsvwts02\calpub"  ' scrap YG
+'   MapDrive "H:","\\shsvfs01\" & UserName & "$"  ' scrap YG
+'   MapDrive "X:","\\shsvfs01\calgrp"  ' scrap YG
+'   MapDrive "P:","\\shsvfs01\calpub"  ' scrap YG
         
 '    MapDrive "H:","\\calgary\" & UserName & "$"
 '    MapDrive "P:","\\calgary\public"
@@ -85,91 +85,91 @@ Select Case network
     Case "198.168.18" '"Crabtree"
     Wscript.Echo "Mapping Crabtree Drives..."
     MapDrive "H:","\\splnwfp\" & UserName & "$"
-    MapDrive "G:","\\splctfp\groups"
-    MapDrive "P:","\\splctfp\public"
+    MapDrive "G:","\\kruger.com\groups\KPI\CT"
+    MapDrive "P:","\\kruger.com\Public\KPI\CT"
     
 '    If objFSO.FolderExists("C:\Program Files\msaver8") Then     ' scrap YG files don't exist
 '       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
+'       objShell.Run "%comspec%  /c \\kruger.com\Public\KPI\CT\mainsaver\kix32.exe \\kruger.com\Public\KPI\CT\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
 '    End If      ' scrap YG files don't exist
    
     Case "10.50.1" '"Crabtree"
     Wscript.Echo "Mapping Crabtree Drives..."
-    MapDrive "H:","\\splctfp\" & UserName & "$"
-    MapDrive "G:","\\splctfp\groups"
-    MapDrive "P:","\\splctfp\public"
+    MapDrive "H:","\\ctsvfp01\" & UserName & "$"
+    MapDrive "G:","\\kruger.com\groups\KPI\CT"
+    MapDrive "P:","\\kruger.com\Public\KPI\CT"
         
 '    If objFSO.FolderExists("C:\Program Files\msaver8") Then      ' scrap YG files don't exist
 '       Wscript.Echo "Executing MainSaver Update...."     ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
+'       objShell.Run "%comspec%  /c \\kruger.com\Public\KPI\CT\mainsaver\kix32.exe \\kruger.com\Public\KPI\CT\mainsaver\mainsaver.kix", 1, true     ' scrap YG files don't exist
 '    End If        ' scrap YG files don't exist
     
     Case "10.50.0" '"Crabtree"
     Wscript.Echo "Mapping Crabtree Drives..."
-    MapDrive "H:","\\splctfp\" & UserName & "$"
-    MapDrive "G:","\\splctfp\groups"
-    MapDrive "P:","\\splctfp\public"
+    MapDrive "H:","\\ctsvfp01\" & UserName & "$"
+    MapDrive "G:","\\kruger.com\groups\KPI\CT"
+    MapDrive "P:","\\kruger.com\Public\KPI\CT"
             
 '    If objFSO.FolderExists("C:\Program Files\msaver8") Then ' scrap YG files don't exist
 '       Wscript.Echo "Executing MainSaver Update...."  ' scrap YG files don't exist
-'       objShell.Run "%comspec%  /c \\splctfp\public\mainsaver\kix32.exe \\splctfp\public\mainsaver\mainsaver.kix", 1, true  ' scrap YG files don't exist
+'       objShell.Run "%comspec%  /c \\kruger.com\Public\KPI\CT\mainsaver\kix32.exe \\kruger.com\Public\KPI\CT\mainsaver\mainsaver.kix", 1, true  ' scrap YG files don't exist
 '    End If  ' scrap YG files don't exist
        
 '    Case "199.175.171" '"Dartmouth"    ' scrap YG
 '    Wscript.Echo "Mapping Dartmouth Drives..."  ' scrap YG
-'    MapDrive "H:","\\kpsvwts02\" & UserName & "$"  ' scrap YG
-'    MapDrive "P:","\\kpsvwts02\public"  ' scrap YG
+'    MapDrive "H:","\\shsvfs01\" & UserName & "$"  ' scrap YG
+'    MapDrive "P:","\\shsvfs01\public"  ' scrap YG
 
 
     Case "199.175.175" '"Joliette"
     Wscript.Echo "Mapping Joliette Drives..."
-    MapDrive "H:","\\splctfp\" & UserName & "$"
-    MapDrive "G:","\\splctfp\groups"
-    MapDrive "P:","\\splctfp\public"
+    MapDrive "H:","\\ctsvfp01\" & UserName & "$"
+    MapDrive "G:","\\kruger.com\groups\KPI\CT"
+    MapDrive "P:","\\kruger.com\Public\KPI\CT"
 
     Case "198.168.19" '"Laurier"
     Wscript.Echo "Mapping Laurier Drives..."
-    MapDrive "H:","\\spllafp\" & UserName & "$"
-    MapDrive "G:","\\spllafp\groups"
-    MapDrive "P:","\\spllafp\public"
+    MapDrive "H:","\\glsvfp01\" & UserName & "$"
+    MapDrive "G:","\\kruger.com\groups\KPI\GL"
+    MapDrive "P:","\\kruger.com\Public\KPI\GL"
     
     Case "199.175.170" '"Lennoxville"
     Wscript.Echo "Mapping Lennoxville Drives..."
-    MapDrive "H:","\\kpsvwts02\" & UserName & "$"
-    MapDrive "G:","\\kpsvwts02\lengrp"
-    MapDrive "P:","\\kpsvwts02\lenpub"
-    MapDrive "X:","\\kpsvwts02\lenapp"
+    MapDrive "H:","\\shsvfs01\" & UserName & "$"
+    MapDrive "G:","\\kruger.com\groups\KPI\LX"
+    MapDrive "P:","\\kruger.com\Public\KPI\LX"
+    MapDrive "X:","\\kruger.com\Apps\KPI\LX"
     
 '    MapDrive "H:","\\lennoxville\" & UserName & "$"
 '    MapDrive "P:","\\lennoxville\public"
 
     Case "172.16.4" '"Memphis"
     Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
+    MapDrive "P:","\\kruger.com\Public\KPI\MP"
 
-    Case "10.78.1" '"Memphis2"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
-
-    Case "10.77.230" '"MemphisVLAN101"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
-
-    Case "10.77.231" '"MemphisVLAN102"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
-
-    Case "10.77.234" '"MemphisVLAN60"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
-
-    Case "10.77.241" '"MemphisVLAN40"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
-
-    Case "10.77.242" '"MemphisVLAN50"
-    Wscript.Echo "Mapping Memphis Drives..."
-    MapDrive "P:","\\memfps\public"
+'    Case "10.78.1" '"Memphis2"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
+'   ' exclure pour remplacer par gpo. YG
+'    Case "10.77.230" '"MemphisVLAN101"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
+'   ' exclure pour remplacer par gpo. YG
+'    Case "10.77.231" '"MemphisVLAN102"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
+'   ' exclure pour remplacer par gpo. YG
+'    Case "10.77.234" '"MemphisVLAN60"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
+'   ' exclure pour remplacer par gpo. YG
+'    Case "10.77.241" '"MemphisVLAN40"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
+'   ' exclure pour remplacer par gpo. YG
+'    Case "10.77.242" '"MemphisVLAN50"   ' exclure pour remplacer par gpo. YG
+'    Wscript.Echo "Mapping Memphis Drives..."   ' exclure pour remplacer par gpo. YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\MP"   ' exclure pour remplacer par gpo. YG
 
 '    Case "198.96.7" '"Mississauga"    ' scrap YG
 '    Wscript.Echo "Mapping Mississauga Drives..."    ' scrap YG
@@ -179,9 +179,9 @@ Select Case network
 
 '    Case "199.175.172" '"Montreal"    ' scrap YG
 '    Wscript.Echo "Mapping Montreal Drives..."    ' scrap YG
-'    MapDrive "H:","\\kpsvwts02\" & UserName & "$"    ' scrap YG
-'    MapDrive "G:","\\kpsvwts02\mongrp"    ' scrap YG
-'    MapDrive "P:","\\kpsvwts02\monpub"    ' scrap YG
+'    MapDrive "H:","\\shsvfs01\" & UserName & "$"    ' scrap YG
+'    MapDrive "G:","\\shsvfs01\mongrp"    ' scrap YG
+'    MapDrive "P:","\\shsvfs01\monpub"    ' scrap YG
     
 '    MapDrive "H:","\\montreal\" & UserName & "$"
 '    MapDrive "P:","\\montreal\public"
@@ -190,8 +190,8 @@ Select Case network
     Case "192.120.136"  '"New Westminster"
     Wscript.Echo "Mapping New Westminster Drives..."
     MapDrive "H:","\\splnwfp\" & UserName & "$"
-    MapDrive "G:","\\splnwfp\groups"
-    MapDrive "P:","\\splnwfp\public"
+    MapDrive "G:","\\kruger.com\groups\KPI\NW"
+    MapDrive "P:","\\kruger.com\Public\KPI\NW"
     
 '        wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
 '        if isMember("NWFP_Fjord") then    ' scrap YG
@@ -227,8 +227,8 @@ Select Case network
 '    Case "192.64.208" '"New Westminster"     ' scrap YG
 '    Wscript.Echo "Mapping New Westminster Drives..."    ' scrap YG
 '    MapDrive "H:","\\splnwfp\" & UserName & "$"    ' scrap YG
-'    MapDrive "G:","\\splnwfp\groups"    ' scrap YG
-'    MapDrive "P:","\\splnwfp\public"    ' scrap YG
+'    MapDrive "G:","\\kruger.com\groups\KPI\NW"    ' scrap YG
+'    MapDrive "P:","\\kruger.com\Public\KPI\NW"    ' scrap YG
     
 '       wscript.echo "Mapping Additional Group Drives..."      ' scrap YG Group doesn't exist
 '       if isMember("NWFP_Fjord") then    ' scrap YG
@@ -266,8 +266,8 @@ Select Case network
     Case "198.162.8" '"Richelieu"
     Wscript.Echo "Mapping Richelieu Drives..."
     MapDrive "H:","\\kplrifp\" & UserName & "$"
-    MapDrive "G:","\\spllafp\groups"
-    MapDrive "P:","\\spllafp\public"
+    MapDrive "G:","\\kruger.com\groups\KPI\GL"
+    MapDrive "P:","\\kruger.com\Public\KPI\GL"
 
 End Select
 
