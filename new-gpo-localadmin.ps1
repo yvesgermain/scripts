@@ -14,7 +14,8 @@ $groups = @(
     "Site Techs")
 
 # $extension = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "NR", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
-$kpextension = "BD", "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
+# $kpextension = "BD", "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
+$OtherExtension = "BR", "CB", "ET", "HO", "HO SS", "KL", "KK", "LS", "KL", "PD", "PB", "PP SS", "KK", "RC SS", "TR", "TU", "WA"
 
 Function Find-OU {
     param($site)
@@ -23,7 +24,7 @@ Function Find-OU {
         "BT" { $Extension = "BentonVille"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
         # "BA" { $Extension = "Brampton"  ; $BusinessUnit = "Kruger Products" ; $resp = "luis.cerda@kruger.com" }
         "BR" { $Extension = "Bromptonville"  ; $BusinessUnit = "Publication" ; $resp = "richard.perras@kruger.com" }
-        "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
+        # "BF" { $Extension = "Brassfield" ; $BusinessUnit = "Energy" ; $resp = "" }
         "CA" { $Extension = "Calgary"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
         "CB" { $Extension = "Corner Brook"  ; $BusinessUnit = "Publication" ; $resp = "kent.pike@kruger.com" }
         "CT" { $Extension = "Crabtree"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
@@ -32,7 +33,7 @@ Function Find-OU {
         "EX" { $Extension = "External"; $BusinessUnit = "Kruger Products" ; $resp = "" }
         "HO" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "HO SS" { $Extension = "Shared Services"  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
-        "KR" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
+        # "KR" { $Extension = ""  ; $BusinessUnit = "Head Office" ; $resp = "Samuel.ponsot@kruger.com" }
         "JO" { $Extension = "Joliette"  ; $BusinessUnit = "Kruger Products" ; $resp = "tyna.fraser@krugerproducts.ca" }
         "KL" { $Extension = "Kamloops"  ; $BusinessUnit = "Publication" ; $resp = "andrej.kocak@kruger.com" }
         "KK" { $Extension = "Shared Services"  ; $BusinessUnit = "Packaging" ; $resp = "luis.cerda@kruger.com" }
@@ -40,7 +41,7 @@ Function Find-OU {
         "GL" { $Extension = "Laurier"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "LV" { $Extension = "Laval"  ; $BusinessUnit = "Kruger Products" ; $resp = "Samuel.ponsot@kruger.com" }
         "LX" { $Extension = "Lennoxville"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
-        "LF" { $Extension = "Lions Falls"  ; $BusinessUnit = "Energy" ; $resp = "" }
+        # "LF" { $Extension = "Lions Falls"  ; $BusinessUnit = "Energy" ; $resp = "" }
         "MP" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
         # "KT" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" } # old naming convention
         "KL" { $Extension = "Monteregie" ; $BusinessUnit = "Energy" ; $resp = "" }
@@ -49,7 +50,7 @@ Function Find-OU {
         "OH" { $Extension = "Oshawa"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
         "PD" { $Extension = "Pedigree"  ; $BusinessUnit = "Packaging" ; $resp = "luis.cerda@kruger.com" }
         "PB" { $Extension = "Paperboard"  ; $BusinessUnit = "Packaging" ; $resp = "normand.charette@kruger.com" }
-        "PM" { $Extension = "Port Alma" ; $BusinessUnit = "Energy" ; $resp = "" }
+        # "PM" { $Extension = "Port Alma" ; $BusinessUnit = "Energy" ; $resp = "" }
         "QB" { $Extension = "Queensborough"  ; $BusinessUnit = "Kruger Products" ; $resp = "russell.longakit@kruger.com" }
         "GR" { $Extension = "Richelieu"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SC" { $Extension = "Scarborough"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
@@ -59,7 +60,7 @@ Function Find-OU {
         # "PP" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
         "PP SS" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
         "KK" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
-        "KK SS" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
+        # "KK SS" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
         "RC SS" { $Extension = "Shared Services" ; $BusinessUnit = "Recycling"; $resp = "" }
         "SH" { $Extension = "Sherbrooke"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SB" { $Extension = "Sherbrooke-LDC"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
@@ -78,9 +79,9 @@ Function Find-OU {
     return $OU
 }
 
-"New GPO - KP Apply Local Admins"
+"New GPO - Test KR Apply Local Admins"
 
-$GPOName = "KP Apply Local Admins"
+$GPOName = "Test KR Apply Local Admins"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = Copy-GPO -SourceName "KR Removal of Local Admins Rights" -TargetName $gponame
@@ -90,7 +91,7 @@ $GPP_Admin_XMLPath = "\\kruger.com\sccm$\Sources\scripts_Infra\data\Groups.xml"
 $Admin = New-Object -TypeName XML
 $Admin.load($GPP_Admin_XMLPath)
 "Creating " + $newgpo.displayname + " from KR Removal of Local Admins Rights"
-foreach ( $ext in $kpextension ) {
+foreach ( $ext in $OtherExtension ) {
 
     $OU = Find-OU -site $ext
     foreach ( $Action in "OverRide","Append") {

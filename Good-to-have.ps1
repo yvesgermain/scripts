@@ -256,7 +256,7 @@ $xx | Where-Object { -not [String]::IsNullOrWhiteSpace($_.group) } | ForEach-Obj
     $Groups = $_.Group.split(",")
     $_.Group = $Groups
 }
-$xx  | Where-Object {$_.group -like "" } | ForEach-Object {
+$xx  | Where-Object { $_.group -like "" } | ForEach-Object {
     $_.Group = $null
 }
 
@@ -365,4 +365,9 @@ Get-Content \\kruger.com\NETLOGON\tr\TrLogon.kix | Where-Object {
 $Functions | ForEach-Object {
     Remove-Variable -Name $_.function
     New-Variable -Name $_.function -PassThru $_
+}
+
+Get-ADUser -Filter { enabled -eq $true -and scriptpath -eq "spllogon.bat" -and homedirectory -like "*" -and homedirectory -notlike "\\kruger.com\users$\*" } -Properties scriptpath, 
+homedrive, homedirectory | Select-Object scriptpath, homedrive, homedirectory,
+@{name = "DFS" ; e = { if ($null -ne $dfs[$_.homedirectory.substring(0, $_.homedirectory.lastindexof('\'))]) { $dfs[$_.homedirectory.substring(0, $_.homedirectory.lastindexof('\'))] + "\" + $_.homedirectory.substring( $_.homedirectory.lastindexof('\') + 1) } else { $_.homedirectory } }
 }
