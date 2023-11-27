@@ -25,7 +25,7 @@ param(
 )
 
 # Import the modules
-Import-Module ActiveDirectory
+Import-Module 
 # Define the Base OU
 $BaseOUs = "OU=Test",
 "OU=Users",

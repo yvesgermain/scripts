@@ -183,7 +183,7 @@ if ($reboot -eq "True") {
 
 
 Write-Output "Create AD Groups for printing permissions and GPP"
-$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch {write-error "$OU doesn't exist"}
+$result = Try { Get-ADOrganizationalUnit -Identity $OU }  catch { Write-Error "$OU doesn't exist" }
 if ($null -eq $result) {
     New-ADOrganizationalUnit -Name "Printers" -Path "OU=Groups,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com"
 }
@@ -192,7 +192,7 @@ Write-Output "Adding the groups for Printers and Default Printers"
 
 Write-Output "Create AD group"
 $printers | ForEach-Object {
-    $Desc = $_.description;
+    $Desc = $_.description
     foreach ($suffix  in @("", "_DF", "_Print", "_Manage")) {
         $groupName = $extension + "p_" + $_.name + $suffix
         switch ($suffix) {
@@ -305,9 +305,15 @@ $GPOName = "$Extension GPP Print Server $server"
 $GPOName = "$Extension GPP Print Server $server"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
+
+Write-Output "Restore "GPP Print Server Template"
+if (!(get-gpo -name "GPP Print Server Template")) {
+    Restore-GPO -Id '1563b2c8-fa16-435a-8686-0f99d1cb5b56' -Path '\\kruger.com\sccm$\Sources\scripts_Infra\gpo'
+}
+
 $newgpo = copy-gpo -SourceName "GPP Print Server Template" -TargetName $gponame
 $guid = $newgpo.id.guid
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 
 $NewEntry = @()
@@ -324,7 +330,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.Name = $name
         $NewEntry.Status = $name
         $NewEntry.Changed = "$CurrentDateTime"
-        $NewEntry.uid = "{" + "$newguid" + "}"
+        $NewEntry.uid = "{ " + "$newguid" + " }"
         $NewEntry.properties.path = "\\$server\$Name"
         $NewEntry.properties.location = $location
         $NewEntry.bypassErrors = 1
@@ -342,12 +348,12 @@ $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
 
-New-GPLink -Name $gponame -Target "ou=Standard Users,ou=Users,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com" -LinkEnabled Yes
+New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
 
 <# Clean environment
 

@@ -225,7 +225,7 @@ $TU = convert-kix2Drive c:\scripts\kklogin_TU.kix
 
 $ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter, Path, @{name = "OrgUnit" ; e = { "" } }, OU, @{name = "Filtergroup" ; e = { "" } }, @{name = "Label" ; e = { "" } }, Group | Sort-Object -Unique -Property Letter, Path, OU, Group | Format-Table
 
-$xx = $ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter,
+$xx = $spllogon + $ho + $CB + $ls + $PD + $PB + $ET + $TU | Where-Object { $_.PATH -notlike "*\@userid+$" } | Select-Object Letter,
 Path,
 @{name = "OrgUnit" ; e = { "" } },
 OU,

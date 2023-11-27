@@ -1,7 +1,7 @@
 # $FilePath = "c:\temp\gporeport-" + (Get-Date -f yyyy-MM-dd) + ".xml"
 # Get-GPOReport -all -ReportType Xml -Path $FilePath
 $GPO = New-Object -TypeName XML
-$GPO.load("c:\temp\gporeport-2023-11-22.xml")
+$GPO.load("c:\temp\gporeport-2023-11-27.xml")
 $GPOdrives = $gpo.report.GPO | Where-Object { 
     $_.name -notlike "Test - DriveMap - YG" -and $_.name -notlike "SH Drives Mapping - TEST" -and 
     $_.name -notlike "Template - DriveMap - YG" } |  ForEach-Object {
@@ -24,12 +24,17 @@ $GPOdrives = $gpo.report.GPO | Where-Object {
 # $drives | Where-Object { $_.group -like "*,*" } | ForEach-Object { $_.group = $_.group.split(",") }
 # $drives | Where-Object { $_.OU -like "*,*" } | ForEach-Object { $_.OU = $_.OU.split(",") }
 
-$drives = $gpodrives + $xx | Where-Object { $_.Path -notlike "" -and $_.path -notlike '*%username%' } 
+$drives = $gpodrives + $xx | Where-Object { $_.Path -notlike "" -and $_.path -notlike '*%username%' -and $_.path -notlike '*& UserName & $' } 
 
 "New GPO Drive Maps"
 
 $GPOName = "Test - DriveMap - YG"
 "If $GPOName exist, delete it"
+Write-Output "Restore GPO Template - Drivemap - YG"
+if (!( Get-GPO -Name "Template - Drivemap - YG")) {
+    Restore-GPO -Id 99f1e4b3-2f8a-45b4-9288-12ee81de65fc -Path '\\kruger.com\sccm$\Sources\scripts_Infra\gpo'
+}
+
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 $newgpo = Copy-GPO -SourceName "Template - Drivemap - YG" -TargetName $GPOName
 $guid = $newgpo.id.guid

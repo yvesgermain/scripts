@@ -1,5 +1,5 @@
 $localsession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://hosvexch01/PowerShell/ -Authentication Kerberos
-import-pssession $localSession
+Import-Module (Import-PSSession $localsession -AllowClobber -ErrorAction Stop) -Global
 $lrooms= Get-mailbox –ResultSize Unlimited –RecipientTypeDetails RoomMailbox | ForEach-Object {$p = $_.primarysmtpaddress; ( get-aduser -Filter {emailaddress -eq $p} ).SamAccountName }
 $lshared = Get-mailbox –ResultSize Unlimited –RecipientTypeDetails SharedMailbox | ForEach-Object {$p = $_.primarysmtpaddress; ( get-aduser -Filter {emailaddress -eq $p}).SamAccountName }
 $Lmonitor = Get-Mailbox -ResultSize unlimited -Monitoring |ForEach-Object { $p = $_.primarysmtpaddress; ( get-aduser -Filter {emailaddress -eq $p}  ).SamAccountName }
