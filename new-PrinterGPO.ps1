@@ -84,7 +84,7 @@ $ADserver = Get-ADComputer $Server
 $session = New-PSSession -ComputerName $Server # -Authentication Credssp -Credential $cred
 
 switch ($loc) {
-    "OU=Bedford,OU=Kruger Products,DC=kruger,DC=com" { $extension = "BD" }
+    # "OU=Bedford,OU=Kruger Products,DC=kruger,DC=com" { $extension = "BD" }
     "OU=Bentonville,OU=Kruger Products,DC=kruger,DC=com" { $extension = "BT" }
     "OU=Bromptonville,OU=Publication,DC=kruger,DC=com" { $extension = "BR" }
     "OU=Calgary,OU=Kruger Products,DC=kruger,DC=com" { $extension = "CA" }
