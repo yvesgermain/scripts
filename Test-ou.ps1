@@ -1,6 +1,6 @@
 $baseOU = "OU=Desktops,OU=Computers", "OU=Mobile,OU=Computers", "OU=Production,OU=Computers", "OU=Distribution,OU=Groups", "OU=GPO,OU=Groups", "OU=Printers,OU=Groups", "OU=Management,OU=Servers", "OU=Terminal Servers,OU=Servers", "OU=Account Admins,OU=Users", "OU=Privileged,OU=Users", "OU=Production Techs,OU=Users", "OU=Resources,OU=Users", "OU=Server Admins,OU=Users", "OU=Service Accounts,OU=Users", "OU=Site Admins,OU=Users", "OU=Site Techs,OU=Users", "OU=Standard Users,OU=Users", "OU=LockDown Users,OU=Standard Users,OU=Users"  
-$sites = "BD", "BT", "BA", "BR", "BF", "CA", "CB", "CT", "ET", "HO", "KR", "JO", "KL", "KK", "LS", "GL", "LV", "LX", "LF", "MP", "KT", "KL", "MI", "NW", "OH", "PD", "PB", "PM", "QB", "GR", "SC", "KP", "PP", "KK", "SH", "SG", "TT", "TR", "TU", "WA"
-$ext   = "BD", "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NR", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA"
+$sites = "BT", "BA", "BR", "BF", "CA", "CB", "CT", "ET", "HO", "KR", "JO", "KL", "KK", "LS", "GL", "LV", "LX", "LF", "MP", "KT", "KL", "MI", "NW", "OH", "PD", "PB", "PM", "QB", "GR", "SC", "KP", "PP", "KK", "SH", "SG", "TT", "TR", "TU", "WA"
+$ext   = "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NR", "NW", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA"
 $groups = "Account admins", "Site admins", "Site Techs", "production techs", "Server admins"
 
 foreach ( $site in $sites) {
