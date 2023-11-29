@@ -153,7 +153,10 @@ Write-Output "Create Reverse Pointer zone if needed."
 
 $printers | ForEach-Object {
     $ip = $_.PortName
-    $name = ($extension.Toupper() + "PS" + $_.name)
+    if ($name -notlike ($extension.Toupper() + "PS" + $_.name)) {
+        $name = ($extension.Toupper() + "PS" + $_.name)
+    }
+
     if (!(Resolve-DnsName -Server 10.1.22.221 -Name "$name.$domainName" -ErrorAction SilentlyContinue)) {
         Add-DnsServerResourceRecordA -ComputerName 10.1.22.221 -Name $name -ZoneName $domainName -IPv4Address $ip -Verbose
     }
@@ -232,10 +235,14 @@ foreach ($Driver in $Drivers) {
 
 Write-Output "Create the printers"
 $printers | ForEach-Object {
-    $printerName = ($extension.Toupper() + "ps" + $_.name)
+    if ($printerName -notlike ($extension.Toupper() + "ps" + $_.name)) {
+        $printerName = ($extension.Toupper() + "ps" + $_.name)
+    }
     $driverName = $_.DriverName
     $printerPortName = $printerName
-    $printerPort = ($extension.Toupper() + "ps" + $_.name)
+    if ($printerPort -notlike ($extension.Toupper() + "ps" + $_.name)) {
+        $printerPort = ($extension.Toupper() + "ps" + $_.name)
+    }
     if ($null -eq (Get-Printer -ComputerName $Server -Name $printerName -ErrorAction SilentlyContinue)) {
         "Check if printerport doesn't exist"
         if ($null -eq (Get-PrinterPort -ComputerName $Server -Name $printerPortName -ErrorAction SilentlyContinue)) {
@@ -305,15 +312,10 @@ $GPOName = "$Extension GPP Print Server $server"
 $GPOName = "$Extension GPP Print Server $server"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
-
-Write-Output "Restore "GPP Print Server Template"
-if (!(get-gpo -name "GPP Print Server Template")) {
-    Restore-GPO -Id '1563b2c8-fa16-435a-8686-0f99d1cb5b56' -Path '\\kruger.com\sccm$\Sources\scripts_Infra\gpo'
-}
-
-$newgpo = copy-gpo -SourceName "GPP Print Server Template" -TargetName $gponame
+if (!(Get-GPO -Name "GPP Print Server Template")) { Restore-GPO -Id '1563b2c8-fa16-435a-8686-0f99d1cb5b56' -Path '\\kruger.com\sccm$\Sources\scripts_Infra\gpo' }
+$newgpo = Copy-GPO -SourceName "GPP Print Server Template" -TargetName $gponame
 $guid = $newgpo.id.guid
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 
 $NewEntry = @()
@@ -330,7 +332,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.Name = $name
         $NewEntry.Status = $name
         $NewEntry.Changed = "$CurrentDateTime"
-        $NewEntry.uid = "{ " + "$newguid" + " }"
+        $NewEntry.uid = "{" + "$newguid" + "}"
         $NewEntry.properties.path = "\\$server\$Name"
         $NewEntry.properties.location = $location
         $NewEntry.bypassErrors = 1
@@ -338,7 +340,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.properties.default = $default
         $NewEntry.filters.Filtergroup.Name = "KRUGERINC\$GroupName"
         $NewEntry.filters.Filtergroup.userContext = "1"
-        $sid = (get-adgroup -SearchBase $ou -filter { name -eq $GroupName }).sid.value
+        $sid = (Get-ADGroup -SearchBase $ou -Filter { name -eq $GroupName }).sid.value
         $NewEntry.filters.Filtergroup.SID = $sid
         $PRNT.DocumentElement.AppendChild($NewEntry) 
     } 
@@ -348,12 +350,12 @@ $PRNT.Save($GPP_PRT_XMLPath)
 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
-$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{ $guid }\User\Preferences\Printers\Printers.xml"
+$GPP_PRT_XMLPath = "\\hospdc01\D$\Windows\SYSVOL\sysvol\kruger.com\Policies\{$guid}\User\Preferences\Printers\Printers.xml"
 [XML]$PRNT = (Get-Content -Path $GPP_PRT_XMLPath) 
 $PRNT.DocumentElement.RemoveChild($PRNT.DocumentElement.SharedPrinter[0])
 $PRNT.Save($GPP_PRT_XMLPath)
 
-New-GPLink -Name $gponame -Target "ou=Standard Users, ou=Users, OU=$location, OU=$BusinessUnit, DC=kruger, DC=com" -LinkEnabled Yes
+New-GPLink -Name $gponame -Target "ou=Standard Users,ou=Users,OU=$location,OU=$BusinessUnit,DC=kruger,DC=com" -LinkEnabled No
 
 <# Clean environment
 
