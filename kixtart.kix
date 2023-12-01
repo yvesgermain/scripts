@@ -60,9 +60,9 @@ EndSelect
 
 ;AddDisk("K", "GROUPS", "kruger.com")
 
-If INGROUP ( "HOGIBEN" ) > 0
-	AddDisk("P", "Apps\CRP\tpfc", "kruger.com")
-EndIf
+;If INGROUP ( "HOGIBEN" ) > 0
+;	AddDisk("P", "Apps\CRP\tpfc", "kruger.com")
+;EndIf
 
 ;If INGROUP ( "HOGINRG" ) > 0
 ;	AddDisk("Q", "Groups\NRG\Archives", "kruger.com")

@@ -15,7 +15,7 @@ $groups = @(
 
 # $extension = "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "NR", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
 # $kpextension = "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
-$OtherExtension = "BR", "CB", "ET", "HO", "HO SS", "KL", "KK", "LS", "KL", "PD", "PB", "PP SS", "KK", "RC SS", "TR", "TU", "WA"
+$OtherExtension = "BR", "CB", "ET", "HO", "HO SS", "KL", "KK", "LS", "KL", "NR", "PD", "PB", "PP SS", "KK", "RC SS", "TR", "TU", "WA"
 
 Function Find-OU {
     param($site)
@@ -47,6 +47,7 @@ Function Find-OU {
         "KL" { $Extension = "Monteregie" ; $BusinessUnit = "Energy" ; $resp = "" }
         "MI" { $Extension = "Mississauga"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
         "NW" { $Extension = "New Westminster"  ; $BusinessUnit = "Kruger Products" ; $resp = "russell.longakit@kruger.com" }
+        "NR" { $Extension = "" ; $BusinessUnit = "Energy" ; $resp = "Samuel.ponsot@kruger.com" }
         "OH" { $Extension = "Oshawa"  ; $BusinessUnit = "Kruger Products" ; $resp = "Eric.Matthews@krugerproducts.ca" }
         "PD" { $Extension = "Pedigree"  ; $BusinessUnit = "Packaging" ; $resp = "luis.cerda@kruger.com" }
         "PB" { $Extension = "Paperboard"  ; $BusinessUnit = "Packaging" ; $resp = "normand.charette@kruger.com" }
@@ -59,8 +60,8 @@ Function Find-OU {
         "KP Shared" { $Extension = "Shared Services" ; $BusinessUnit = "Kruger Products" ; $resp = "" }
         # "PP" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
         "PP SS" { $Extension = "Shared Services" ; $BusinessUnit = "Publication" ; $resp = "" }
-        "KK" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
-        # "KK SS" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
+        # "KK" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
+        "KK SS" { $Extension = "Shared Services" ; $BusinessUnit = "Packaging"; $resp = "" }
         "RC SS" { $Extension = "Shared Services" ; $BusinessUnit = "Recycling"; $resp = "" }
         "SH" { $Extension = "Sherbrooke"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
         "SB" { $Extension = "Sherbrooke-LDC"  ; $BusinessUnit = "Kruger Products" ; $resp = "richard.perras@kruger.com" }
