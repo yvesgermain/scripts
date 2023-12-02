@@ -308,8 +308,6 @@ $printers | ForEach-Object {
 "New GPO $Extension GPP Print Server $server"
 
 $GPOName = "$Extension GPP Print Server $server"
-
-$GPOName = "$Extension GPP Print Server $server"
 "If $GPOName exist, delete it"
 if (Get-GPO -Name $GPOName -ErrorAction SilentlyContinue ) { Remove-GPO -Name $GPOName }
 if (!(Get-GPO -Name "GPP Print Server Template")) { Restore-GPO -Id '1563b2c8-fa16-435a-8686-0f99d1cb5b56' -Path '\\kruger.com\sccm$\Sources\scripts_Infra\gpo' }
@@ -334,7 +332,7 @@ foreach ($suffix in @( "", "_DF")) {
         $NewEntry.Changed = "$CurrentDateTime"
         $NewEntry.uid = "{" + "$newguid" + "}"
         $NewEntry.properties.path = "\\$server\$Name"
-        $NewEntry.properties.location = $location
+        $NewEntry.properties.location = $list.location
         $NewEntry.bypassErrors = 1
         $NewEntry.properties.action = "R"
         $NewEntry.properties.default = $default
