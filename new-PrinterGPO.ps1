@@ -327,6 +327,7 @@ foreach ($suffix in @( "", "_DF")) {
         $CurrentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
         $newguid = [System.Guid]::NewGuid().toString()
         $NewEntry = $PRNT.printers.SharedPrinter[0].clone()
+        $NewEntry.SetAttribute("disabled", 1)
         $NewEntry.Name = $name
         $NewEntry.Status = $name
         $NewEntry.Changed = "$CurrentDateTime"
