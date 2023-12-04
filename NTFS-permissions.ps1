@@ -97,6 +97,7 @@ Add-MdbcData -InputObject $all
 $localsession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://hosvexch01/PowerShell/ -Authentication Kerberos
 Import-PSSession $localsession
 $all = get-mailbox -ResultSize unlimited | ForEach-Object { $user = $_.SamAccountName; Get-MailboxPermission -Identity $user  | Select-Object @{name = "Server" ; e = { "Exchange\" + $_.PSComputerName } }, @{ name = "FileSystemRights" ; e = { $_.AccessRights } }, IsInherited, @{name = "Folder" ; e = { "mailbox\" + $user } }, @{name = "IdentityReference" ; e = { $_.User } }, @{ name = "AccessControlType" ; e = { if ($_.Deny -eq $true) { 'Deny' } else { "Allow" } } }, @{name = "InheritanceFlags" ; e = { $_.InheritanceType } } }
+Connect-Mdbc -ConnectionString "mongodb://localhost:27017" -CollectionName Servers -DatabaseName ACL
 Add-MdbcData -InputObject $all
 Remove-PSSession $localsession
 

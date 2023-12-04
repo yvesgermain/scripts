@@ -185,7 +185,7 @@ $tr = Get-Content c:\scripts\TrLogon.kix | Where-Object {
 $tr | Format-Table -AutoSize
 
 $CB = Get-Content \\kruger.com\NETLOGON\cb\LoginCB.kix | Where-Object {
-    -not [String]::IsNullOrWhiteSpace($_.group.OU) -and $_ -notlike "*;*" } | ForEach-Object {
+    -not [String]::IsNullOrWhiteSpace($_) -and $_ -notlike "*;*" } | ForEach-Object {
     $case = ""
     if ($_ -match "use ") { $letter, $path = $_.replace('"', "").split(":"); $letter = $letter.replace("use " , "").trim() }
     if ($_ -match "If INGROUP") { $isMember = $_.split('"')[1] }  else { $isMember = $null }

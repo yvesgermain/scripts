@@ -1,7 +1,7 @@
 # $FilePath = "c:\temp\gporeport-" + (Get-Date -f yyyy-MM-dd) + ".xml"
 # Get-GPOReport -all -ReportType Xml -Path $FilePath
 $GPO = New-Object -TypeName XML
-$GPO.load("c:\temp\gporeport-2023-11-27.xml")
+$GPO.load("c:\temp\gporeport-2023-12-03.xml")
 $GPOdrives = $gpo.report.GPO | Where-Object { 
     $_.name -notlike "Test - DriveMap - YG" -and $_.name -notlike "SH Drives Mapping - TEST" -and 
     $_.name -notlike "Template - DriveMap - YG" } |  ForEach-Object {

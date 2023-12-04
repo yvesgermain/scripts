@@ -15,7 +15,7 @@ $groups = @(
 
 # $extension = "BR", "BT", "CA", "CB", "CT", "ET", "EX", "GL", "GR", "HO", "HO SS", "JO", "KK", "KL", "LS", "LV", "LX", "MI", "MP", "NW", "NR", "OH", "PB", "PD", "QB", "SB", "SC", "SG", "SH", "TR", "TT", "TU", "WA", "KP External" , "KP Shared", "PP SS", "KK SS", "RC SS"
 # $kpextension = "BT", "CA", "CT", "EX", "GL", "GR", "JO", "KP External", "KP Shared", "LV", "LX", "MI", "MP", "NW", "OH", "QB", "SB", "SC", "SG", "SH", "TT"
-$OtherExtension = "BR", "CB", "ET", "HO", "HO SS", "KL", "KK", "LS", "KL", "NR", "PD", "PB", "PP SS", "KK", "RC SS", "TR", "TU", "WA"
+$OtherExtension = "BR", "CB", "ET", "HO", "HO SS", "KK", "LS", "KL", "NR", "PD", "PB", "PP SS", "KK", "RC SS", "TR", "TU", "WA"
 
 Function Find-OU {
     param($site)
@@ -44,7 +44,7 @@ Function Find-OU {
         # "LF" { $Extension = "Lions Falls"  ; $BusinessUnit = "Energy" ; $resp = "" }
         "MP" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" }
         # "KT" { $Extension = "Memphis"  ; $BusinessUnit = "Kruger Products" ; $resp = "jeff.stark@kruger.com" } # old naming convention
-        "KL" { $Extension = "Monteregie" ; $BusinessUnit = "Energy" ; $resp = "" }
+        # "KL" { $Extension = "Monteregie" ; $BusinessUnit = "Energy" ; $resp = "" }
         "MI" { $Extension = "Mississauga"  ; $BusinessUnit = "Kruger Products" ; $resp = "steven.yatar@kruger.com" }
         "NW" { $Extension = "New Westminster"  ; $BusinessUnit = "Kruger Products" ; $resp = "russell.longakit@kruger.com" }
         "NR" { $Extension = "" ; $BusinessUnit = "Energy" ; $resp = "Samuel.ponsot@kruger.com" }
