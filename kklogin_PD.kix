@@ -218,20 +218,20 @@ IF Ingroup ("tushareoutlook")
 
 	ENDIF
 
-IF Ingroup ("lsshareoutlook")
-		AddDisk("B", @userid+"$", "LSSVPST01.kruger.com")
-
-	ENDIF
-
-IF Ingroup ("bashareoutlook")
-		AddDisk("N", @userid+"$", "BASVPST01.kruger.com")
-
-	ENDIF
-
-;IF Ingroup ("KKShareDesignRW")
-;		AddDisk("Y", "Groups\KKP\LS\Design-Tech Services", "kruger.com")
+;IF Ingroup ("lsshareoutlook")
+;		AddDisk("B", @userid+"$", "LSSVPST01.kruger.com")
 ;
 ;	ENDIF
+;
+;IF Ingroup ("bashareoutlook")
+;		AddDisk("N", @userid+"$", "BASVPST01.kruger.com")
+;
+;	ENDIF
+
+IF Ingroup ("KKShareDesignRW")
+		AddDisk("Y", "Groups\KKP\LS\Design-Tech Services", "kruger.com")
+
+	ENDIF
 
 
 ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -306,51 +306,51 @@ Function AddShortcut ( $GroupName, $LinkName, $LinkFolder, $ProgramName)
 EndFunction
 
 
-If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH"  OR SUBSTR (@wksta, 1, 8) = "PDSVRDSH" 
-	Color w+/n
-	? " "
-	? "********************************************************************************"
-	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
-	? "********************************************************************************"
-	? " "
-	
-	AddShortcut("KkTsCitrixMetaFrame", "Program Neighborhood Agent.lnk", "Citrix", "Citrix Client")
-	AddShortcut("KkTsEspCheckPriceLs", "Esp Check Price Lasalle.lnk", "Esp Check Price", "Esp Check Price")
-	AddShortcut("KkTsEspCheckPricePd", "Esp Check Price Brampton.lnk", "Esp Check Price", "Esp Check Price")
-	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Word 2007.lnk", "Microsoft Office", "Word")
-	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Excel 2007.lnk", "Microsoft Office", "Excel")
-	AddShortcut("KkTsMsOfficeStd", "Microsoft Office PowerPoint 2007.lnk", "Microsoft Office", "PowerPoint")
-	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Outlook 2007.lnk", "Microsoft Office", "Outlook")
-	AddShortcut("KkTsMsOfficePro", "Microsoft Office Access 2007.lnk", "Microsoft Office", "Access")
-	AddShortcut("KkTsMsVisio", "Microsoft Office Visio 2007.lnk", "Microsoft Office", "Visio")
-	AddShortcut("KkTsKiwiplanMapLs", "Kiwiplan MAP - Lasalle.r2w", "Kiwiplan", "Kiwiplan MAP Lasalle")
-	AddShortcut("KkTsKiwiplanMapPd", "Kiwiplan MAP - Brampton.r2w", "Kiwiplan", "Kiwiplan MAP Brampton")
-	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
-	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
-	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
-	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
-	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
-	AddShortcut("KkTsCalculus", "Exacc 2000.lnk", "Exacc 2000", "Exacc 2000 - Calulus")
-	AddShortcut("KkTsExportRiteLite", "ExportRite Lite.lnk", "ExportRiteLite 3.0", "ExportRiteLite")
-	AddShortcut("KkTsConvert", "convert.exe", "", "Convert")
-	AddShortcut("KkTsHpuxLs", "HPUX - Lasalle.r2w", "", "HPUX Lasalle")
-	AddShortcut("KkTsHpuxPd", "HPUX - Brampton.r2w", "", "HPUX Brampton")
-	AddShortcut("KkTsRydeSmart", "RydeSmart eClient.lnk", "RydeSmart", "RydeSmart eClient")
-	AddShortcut("KkTsRydeSmart", "RydeSmart Reporter.lnk", "RydeSmart", "RydeSmart Reporter")
-	AddShortcut("KkTsOracleUPK", "UPK Developer.lnk", "User Productivity Kit", "Oracle UPK")
-        	;AddShortcut("KkTsShellGLE", "ELM-GL�.lnk", "Shell Canada Product Software", "Shell GLE")
-		;AddShortcut("KkTsShellGLE", "LubePlanner.lnk", "Shell Canada Product Software", "Shell LubePlanner")
-;	AddShortcut("KkTsCiscoCallAttendant", "Cisco CallManager Attendant Console.lnk", "Cisco Phone", "Cisco CallManager Attendant Console")
-	AddShortcut("KkTsAnalyseRisques", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")
-	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
-	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
-	AddShortcut("KKAppKKP_MAPFTPTool", "KKP_MAPFTPTool.appref-ms", "KKP", "KKP_MAPFTPTool")
-	AddShortcut("KkTsSnipTool", "Snipping Tool.lnk", "", "Snipping Tool")
-	;AddShortcut("", "", "", "")
-
-
-	
-EndIf
+; If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH"  OR SUBSTR (@wksta, 1, 8) = "PDSVRDSH" 
+; 	Color w+/n
+; 	? " "
+; 	? "********************************************************************************"
+; 	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+; 	? "********************************************************************************"
+; 	? " "
+; 	
+; 	AddShortcut("KkTsCitrixMetaFrame", "Program Neighborhood Agent.lnk", "Citrix", "Citrix Client")
+; 	AddShortcut("KkTsEspCheckPriceLs", "Esp Check Price Lasalle.lnk", "Esp Check Price", "Esp Check Price")
+; 	AddShortcut("KkTsEspCheckPricePd", "Esp Check Price Brampton.lnk", "Esp Check Price", "Esp Check Price")
+; 	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Word 2007.lnk", "Microsoft Office", "Word")
+; 	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Excel 2007.lnk", "Microsoft Office", "Excel")
+; 	AddShortcut("KkTsMsOfficeStd", "Microsoft Office PowerPoint 2007.lnk", "Microsoft Office", "PowerPoint")
+; 	AddShortcut("KkTsMsOfficeStd", "Microsoft Office Outlook 2007.lnk", "Microsoft Office", "Outlook")
+; 	AddShortcut("KkTsMsOfficePro", "Microsoft Office Access 2007.lnk", "Microsoft Office", "Access")
+; 	AddShortcut("KkTsMsVisio", "Microsoft Office Visio 2007.lnk", "Microsoft Office", "Visio")
+; 	AddShortcut("KkTsKiwiplanMapLs", "Kiwiplan MAP - Lasalle.r2w", "Kiwiplan", "Kiwiplan MAP Lasalle")
+; 	AddShortcut("KkTsKiwiplanMapPd", "Kiwiplan MAP - Brampton.r2w", "Kiwiplan", "Kiwiplan MAP Brampton")
+; 	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
+; 	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
+; 	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
+; 	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
+; 	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
+; 	AddShortcut("KkTsCalculus", "Exacc 2000.lnk", "Exacc 2000", "Exacc 2000 - Calulus")
+; 	AddShortcut("KkTsExportRiteLite", "ExportRite Lite.lnk", "ExportRiteLite 3.0", "ExportRiteLite")
+; 	AddShortcut("KkTsConvert", "convert.exe", "", "Convert")
+; 	AddShortcut("KkTsHpuxLs", "HPUX - Lasalle.r2w", "", "HPUX Lasalle")
+; 	AddShortcut("KkTsHpuxPd", "HPUX - Brampton.r2w", "", "HPUX Brampton")
+; 	AddShortcut("KkTsRydeSmart", "RydeSmart eClient.lnk", "RydeSmart", "RydeSmart eClient")
+; 	AddShortcut("KkTsRydeSmart", "RydeSmart Reporter.lnk", "RydeSmart", "RydeSmart Reporter")
+; 	AddShortcut("KkTsOracleUPK", "UPK Developer.lnk", "User Productivity Kit", "Oracle UPK")
+;         	;AddShortcut("KkTsShellGLE", "ELM-GL�.lnk", "Shell Canada Product Software", "Shell GLE")
+; 		;AddShortcut("KkTsShellGLE", "LubePlanner.lnk", "Shell Canada Product Software", "Shell LubePlanner")
+; ;	AddShortcut("KkTsCiscoCallAttendant", "Cisco CallManager Attendant Console.lnk", "Cisco Phone", "Cisco CallManager Attendant Console")
+; 	AddShortcut("KkTsAnalyseRisques", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")
+; 	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
+; 	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
+; 	AddShortcut("KKAppKKP_MAPFTPTool", "KKP_MAPFTPTool.appref-ms", "KKP", "KKP_MAPFTPTool")
+; 	AddShortcut("KkTsSnipTool", "Snipping Tool.lnk", "", "Snipping Tool")
+; 	;AddShortcut("", "", "", "")
+; 
+; 
+; 	
+; EndIf
 
 
 If  SUBSTR (@wksta, 1, 8) = "KKSVRDSH"

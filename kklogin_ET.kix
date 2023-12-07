@@ -248,20 +248,20 @@ IF Ingroup ("tushareoutlook")
 
 	ENDIF
 
-IF Ingroup ("lsshareoutlook")
-		AddDisk("B", @userid+"$", "LSSVPST01.kruger.com")
-
-	ENDIF
-
-IF Ingroup ("bashareoutlook")
-		AddDisk("N", @userid+"$", "BASVPST01.kruger.com")
-
-	ENDIF
-
-;IF Ingroup ("KKShareDesignRW")
-;		AddDisk("Y", "Groups\KKP\LS\Design-Tech Services", "kruger.com")
+;IF Ingroup ("lsshareoutlook")
+;		AddDisk("B", @userid+"$", "LSSVPST01.kruger.com")
 ;
 ;	ENDIF
+;
+;IF Ingroup ("bashareoutlook")
+;		AddDisk("N", @userid+"$", "BASVPST01.kruger.com")
+;
+;	ENDIF
+
+IF Ingroup ("KKShareDesignRW")
+		AddDisk("Y", "Groups\KKP\LS\Design-Tech Services", "kruger.com")
+
+	ENDIF
 
 
 ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -437,12 +437,12 @@ EndIf
 
 :SHORTCUT_END
 
-If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
-
-	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
-		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
-	EndIf
-EndIf
+; If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
+; 
+; 	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
+; 		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
+; 	EndIf
+; EndIf
 
 
 ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
