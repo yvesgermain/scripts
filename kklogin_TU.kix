@@ -383,17 +383,17 @@ If  SUBSTR (@wksta, 1, 8) = "KKSVRDSH"
 EndIf
 
 
-If  SUBSTR (@wksta, 1, 10) = "KKSVSOLAGC"
-	Color w+/n
-	? " "
-	? "********************************************************************************"
-	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
-	? "********************************************************************************"
-	? " "
-	
-	AddShortcut("PB_AGC4DMODULE_PARAMETERS_VIEW_ONLY", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
-	AddShortcut("PB_AGC4DMODULE_Superviseur_Production", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
-	AddShortcut("PB_AGC4DMODULE_Superviseur_Maintenance", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; If  SUBSTR (@wksta, 1, 10) = "KKSVSOLAGC"
+; 	Color w+/n
+; 	? " "
+; 	? "********************************************************************************"
+; 	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+; 	? "********************************************************************************"
+; 	? " "
+; 	
+; 	AddShortcut("PB_AGC4DMODULE_PARAMETERS_VIEW_ONLY", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; 	AddShortcut("PB_AGC4DMODULE_Superviseur_Production", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; 	AddShortcut("PB_AGC4DMODULE_Superviseur_Maintenance", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
 ;AddShortcut("", "", "", "")
 
 
@@ -402,12 +402,12 @@ EndIf
 
 :SHORTCUT_END
 
-If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
-
-	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
-		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
-	EndIf
-EndIf
+; If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
+; 
+; 	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
+; 		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
+; 	EndIf
+; EndIf
 
 
 ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -361,17 +361,17 @@ If  SUBSTR (@wksta, 1, 8) = "KKSVRDSH"
 	AddShortcut("KkTsMsOfficeStd", "Outlook 2016.lnk", "Microsoft Office", "Outlook 2016")
 	AddShortcut("KkTsKiwiplanMapLs", "Kiwi - Map - Lasalle.etx", "Kiwiplan", "Kiwiplan MAP Lasalle")
 	AddShortcut("KkTsKiwiplanMapPd", "Kiwi - Map - Brampton.etx", "Kiwiplan", "Kiwiplan MAP Brampton")
-	AddShortcut("KkTsKiwiplanQMSAdmin", "QMS.lnk", "Kiwiplan", "Kiwiplan QMS")
-	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
-	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
-	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
-	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Lasalle - Test.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle Test")
-	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
-	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
+;	AddShortcut("KkTsKiwiplanQMSAdmin", "QMS.lnk", "Kiwiplan", "Kiwiplan QMS")
+;	AddShortcut("KkTsKiwiplanEspLs", "Kiwiplan ESP - Lasalle.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle")
+;	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton.lnk", "Kiwiplan", "Kiwiplan ESP Brampton")
+;	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan ESP Brampton Test")
+;	AddShortcut("KkTsKiwiplanEspPd", "Kiwiplan ESP - Lasalle - Test.lnk", "Kiwiplan", "Kiwiplan ESP Lasalle Test")
+;	AddShortcut("KkTsKiwiplanFFFPd", "Kiwiplan FFF - Brampton.lnk", "Kiwiplan", "Kiwiplan FFF Brampton")
+;	AddShortcut("KkTsKiwiplanFFFPdTest", "Kiwiplan FFF - Brampton - Test.lnk", "Kiwiplan", "Kiwiplan FFF Brampton Test")
 	AddShortcut("KkTsConvert", "convert.exe", "", "Convert")
-	AddShortcut("LsDeptShipping", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")	
-	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
-	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
+;	AddShortcut("LsDeptShipping", "Analyse de risques.url", "Analyse de risques", "Analyse de risques")	
+;	AddShortcut("KkTsKiwiplanTSSPd", "BR-TSS.url", "Kiwiplan", "Kiwiplan TSS Brampton")
+;	AddShortcut("KkTsKiwiplanJULTPd", "BR-ULT Vue.url", "Kiwiplan", "Kiwiplan ULT Vue")
 	AddShortcut("KKAppKKP_MAPFTPTool", "KKP_MAPFTPTool.appref-ms", "KKP", "KKP_MAPFTPTool")
 	AddShortcut("KkTsSnipTool", "Snipping Tool.lnk", "", "Snipping Tool")
 
@@ -382,18 +382,18 @@ If  SUBSTR (@wksta, 1, 8) = "KKSVRDSH"
 EndIf
 
 
-If  SUBSTR (@wksta, 1, 10) = "KKSVSOLAGC"
-	Color w+/n
-	? " "
-	? "********************************************************************************"
-	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
-	? "********************************************************************************"
-	? " "
-	
-	AddShortcut("PB_AGC4DMODULE_PARAMETERS_VIEW_ONLY", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
-	AddShortcut("PB_AGC4DMODULE_Superviseur_Production", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
-	AddShortcut("PB_AGC4DMODULE_Superviseur_Maintenance", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
-;AddShortcut("", "", "", "")
+; If  SUBSTR (@wksta, 1, 10) = "KKSVSOLAGC"
+; 	Color w+/n
+; 	? " "
+; 	? "********************************************************************************"
+; 	? "*            Ajout/Suppression des raccourcis / Add/Remove Shortcut            *"
+; 	? "********************************************************************************"
+; 	? " "
+; 	
+; 	AddShortcut("PB_AGC4DMODULE_PARAMETERS_VIEW_ONLY", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; 	AddShortcut("PB_AGC4DMODULE_Superviseur_Production", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; 	AddShortcut("PB_AGC4DMODULE_Superviseur_Maintenance", "4D Module Supervisor Board.lnk", "", "4D Module Supervisor Board")
+; ;AddShortcut("", "", "", "")
 
 
 
@@ -401,12 +401,12 @@ EndIf
 
 :SHORTCUT_END
 
-If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
-
-	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
-		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
-	EndIf
-EndIf
+;If  SUBSTR (@wksta, 1, 8) = "LSSVRDSH" or SUBSTR (@wksta, 1, 8) = "LSSRDFARM"
+;
+;	If Exist ("C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk") = 1
+;		DEL "C:\Users\%USERNAME%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Windows PowerShell.lnk"
+;	EndIf
+;EndIf
 
 
 ; +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

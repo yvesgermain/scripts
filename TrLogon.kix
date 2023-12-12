@@ -454,7 +454,7 @@ IF InGroup ("TRgpoAdministration")
    GOTO TheEnd
 EndIF
 
-;IF InGroup ("TRgpoAdministrateurs")  ; Groupe est vide
+;IF InGroup ("TRgpoAdministrateurs")  ; Groupe est vide et '\\TRsData\usagers$\Administrateurs' does not exist.
 ;   AddNewDisk  ( "TRsData", "usagers$\Administrateurs", $User, "U", "/Persistent:yes")  
 ;   GOTO TheEnd
 ;EndIF
@@ -469,7 +469,7 @@ IF InGroup ("TRgpoChaufferie")
    GOTO TheEnd
 EndIF
 
-;IF InGroup ("TRgpoCoucheuses")
+;IF InGroup ("TRgpoCoucheuses") ; Le path \\trsdata\usagers$\Coucheuses n'existe pas
 ;   AddNewDisk  ( "TRsData", "usagers$\Coucheuses", $User, "U", "/Persistent:yes")  
 ;   GOTO TheEnd
 ;EndIF
@@ -550,17 +550,17 @@ IF InGroup ("TRgpoStatisticiens")  ; Groupe est vide
    GOTO TheEnd
 EndIF
 
-;IF InGroup ("TRgpoTamisage")  ; Groupe est vide
+;IF InGroup ("TRgpoTamisage")  ; Groupe est vide et '\\TRsData\usagers$\Tamisage' does not exist.
 ;   AddNewDisk  ( "TRsData", "usagers$\Tamisage", $User, "U", "/Persistent:yes")  
 ;   GOTO TheEnd
 ;EndIF
 ;
-;IF InGroup ("TRgpoBibli")  ; Groupe est vide
+;IF InGroup ("TRgpoBibli")  ; Groupe est vide et '\\TRsData\usagers$\bibli' does not exist.
 ;   AddNewDisk  ( "TRsData", "usagers$\Bibli", $User, "U", "/Persistent:yes")  
 ;   GOTO TheEnd
 ;EndIF
 ;
-;IF InGroup ("TRgpoMobilisation")  ; Groupe est vide
+;IF InGroup ("TRgpoMobilisation")  ; Groupe est vide et '\\TRsData\usagers$\mobilisation' does not exist
 ;   AddNewDisk  ( "TRsData", "usagers$\Mobilisation", $User, "U", "/Persistent:yes")  
 ;   GOTO TheEnd
 ;EndIF
