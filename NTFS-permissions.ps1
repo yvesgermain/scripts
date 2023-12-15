@@ -1,9 +1,10 @@
 Import-Module activedirectory 
+$sessionoption = New-PSSessionOption -CancelTimeout:$true
 $date = (Get-Date).addmonths(-3) 
 $servers = (Get-ADComputer -Filter { enabled -eq $true -and lastlogondate -gt $date -and OperatingSystem -like "Windows server*" -and  OperatingSystem -notlike "Windows server 2003*" } -Properties OperatingSystem, lastlogondate ).name
 foreach ( $server in $servers) {
     if (Test-WSMan $server -ErrorAction SilentlyContinue) {
-        if (!(Test-Path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server) }
+        if (!(Test-Path variable:"PPS$server")) { New-Variable -Name ("PPS" + $server) -Value (New-PSSession -ComputerName $server -SessionOption $sessionoption) }
         Invoke-Command -Session $(Get-Variable "PPS$server").Value -ScriptBlock {
             $server = (HOSTNAME.EXE).tolower()
             if (!( Test-Path C:\temp\NTFS )) { mkdir C:\temp\NTFS }
